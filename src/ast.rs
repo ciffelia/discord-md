@@ -246,7 +246,8 @@ impl From<OneLineCode> for MarkdownElement {
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Display)]
+#[display(fmt = "```{}{}```", r#"language.as_deref().unwrap_or("")"#, content)]
 pub struct MultiLineCode {
     content: String,
     language: Option<String>,
@@ -269,16 +270,6 @@ impl MultiLineCode {
 
     pub fn language(&self) -> Option<&str> {
         self.language.as_deref()
-    }
-}
-
-impl fmt::Display for MultiLineCode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if let Some(language) = &self.language {
-            write!(f, "```{}\n{}```", language, self.content)
-        } else {
-            write!(f, "```\n{}```", self.content)
-        }
     }
 }
 
@@ -507,11 +498,19 @@ mod tests {
     #[test]
     fn test_multi_line_code_to_string() {
         assert_eq!(
-            MultiLineCode::new("multi\nline\ncode\n", None).to_string(),
+            MultiLineCode::new("\nmulti\nline\ncode\n", None).to_string(),
             "```\nmulti\nline\ncode\n```"
         );
         assert_eq!(
-            MultiLineCode::new("multi\nline\ncode\n", Some("js".to_string())).to_string(),
+            MultiLineCode::new(" multi\nline\ncode\n", None).to_string(),
+            "``` multi\nline\ncode\n```"
+        );
+        assert_eq!(
+            MultiLineCode::new("multi line code", None).to_string(),
+            "```multi line code```"
+        );
+        assert_eq!(
+            MultiLineCode::new("\nmulti\nline\ncode\n", Some("js".to_string())).to_string(),
             "```js\nmulti\nline\ncode\n```"
         );
     }

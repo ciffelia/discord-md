@@ -101,3 +101,58 @@ pub fn parse(msg: &str) -> MarkdownDocument {
 
     doc
 }
+
+#[cfg(test)]
+mod tests {
+    use super::ast::*;
+    use super::*;
+
+    #[test]
+    fn test_parse_1() {
+        let message = "*italics*, ||spoilers||, `*inline code*`";
+        assert_eq!(
+            parse(message),
+            MarkdownDocument::new(vec![
+                ItalicsStar::new(vec![Plain::new("italics").into()]).into(),
+                Plain::new(", ").into(),
+                Spoiler::new(vec![Plain::new("spoilers").into()]).into(),
+                Plain::new(", ").into(),
+                OneLineCode::new("*inline code*").into(),
+            ])
+        );
+    }
+
+    #[test]
+    fn test_parse_2() {
+        let message = "__*nested* styles__ supported";
+        assert_eq!(
+            parse(message),
+            MarkdownDocument::new(vec![
+                Underline::new(vec![
+                    ItalicsStar::new(vec![Plain::new("nested").into()]).into(),
+                    Plain::new(" styles").into()
+                ])
+                .into(),
+                Plain::new(" supported").into(),
+            ])
+        );
+    }
+
+    #[test]
+    fn test_parse_3() {
+        let message = r#"
+```js
+const cond = a > b || c < d || e === f;
+```
+        "#
+        .trim();
+        assert_eq!(
+            parse(message),
+            MarkdownDocument::new(vec![MultiLineCode::new(
+                "\nconst cond = a > b || c < d || e === f;\n",
+                Some("js".to_string())
+            )
+            .into()])
+        );
+    }
+}

@@ -369,20 +369,20 @@ mod tests {
     #[test]
     fn test_one_line_code() {
         assert_eq!(
-            one_line_code("`__*text*__`"),
-            Ok(("", OneLineCode::new("__*text*__")))
+            one_line_code("`*text*`"),
+            Ok(("", OneLineCode::new("*text*")))
         );
         assert_eq!(
-            one_line_code("`__*text*__"),
+            one_line_code("`*text*"),
             Err(parse_error("", ErrorKind::Tag))
         );
         assert_eq!(
-            one_line_code("__*text*__`"),
-            Err(parse_error("__*text*__`", ErrorKind::Tag))
+            one_line_code("*text*`"),
+            Err(parse_error("*text*`", ErrorKind::Tag))
         );
         assert_eq!(
-            one_line_code("__*text*__"),
-            Err(parse_error("__*text*__", ErrorKind::Tag))
+            one_line_code("*text*"),
+            Err(parse_error("*text*", ErrorKind::Tag))
         );
         assert_eq!(one_line_code("``"), Err(parse_error("`", ErrorKind::IsNot)));
     }

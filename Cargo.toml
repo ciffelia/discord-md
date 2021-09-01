@@ -1,5 +1,5 @@
 [package]
-name = "discord-markdown"
+name = "discord-md"
 version = "0.1.0"
 edition = "2018"
 

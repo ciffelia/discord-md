@@ -456,5 +456,9 @@ mod tests {
                 MultiLineCode::new("\nhello", Some("x86asm".to_string()))
             ))
         );
+        assert_eq!(
+            multi_line_code("```js\nhello"),
+            Err(parse_error("", ErrorKind::Tag))
+        );
     }
 }

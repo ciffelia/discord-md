@@ -1,6 +1,6 @@
 //! Utility functions for writing parser tests.
 
-use nom::error::{ErrorKind, Error};
+use nom::error::{Error, ErrorKind};
 
 /// Syntax sugar to `nom::Err::Error(nom::error::Error::new(input, code))`.
 ///

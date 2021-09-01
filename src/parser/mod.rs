@@ -3,17 +3,17 @@ mod util;
 #[cfg(test)]
 mod test_util;
 
-use util::{take_before, rest1, wrapped};
-use nom::{
-    branch::alt,
-    combinator::{map, map_parser},
-    IResult,
-    multi::many0,
-};
 use crate::ast::{
     Bold, ItalicsStar, ItalicsUnderscore, MarkdownDocument, MarkdownElement,
     MarkdownElementCollection, OneLineCode, Plain, Spoiler, Strikethrough, Underline,
 };
+use nom::{
+    branch::alt,
+    combinator::{map, map_parser},
+    multi::many0,
+    IResult,
+};
+use util::{rest1, take_before, wrapped};
 
 pub fn markdown_document(i: &str) -> IResult<&str, MarkdownDocument> {
     map(markdown_element_collection, MarkdownDocument::new)(i)
@@ -100,9 +100,9 @@ fn one_line_code(i: &str) -> IResult<&str, OneLineCode> {
 
 #[cfg(test)]
 mod tests {
-    use nom::error::ErrorKind;
-    use crate::parser::test_util::parse_error;
     use super::*;
+    use crate::parser::test_util::parse_error;
+    use nom::error::ErrorKind;
 
     #[test]
     fn test_markdown_document() {

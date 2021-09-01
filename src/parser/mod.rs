@@ -176,7 +176,7 @@ mod tests {
     }
 
     #[test]
-    fn test_markdown_element() {
+    fn test_markdown_element_ok() {
         assert_eq!(
             markdown_element("text"),
             Ok(("", Plain::new("text").into()))
@@ -229,6 +229,10 @@ mod tests {
             markdown_element("`hello`**world**"),
             Ok(("**world**", OneLineCode::new("hello").into()))
         );
+    }
+
+    #[test]
+    fn test_markdown_element_err() {
         assert_eq!(
             markdown_element(""),
             Err(parse_error("", ErrorKind::TakeWhile1))
@@ -259,11 +263,15 @@ mod tests {
     }
 
     #[test]
-    fn test_italics_star() {
+    fn test_italics_star_ok() {
         assert_eq!(
             italics_star("*text*"),
             Ok(("", ItalicsStar::new(vec![Plain::new("text").into()])))
         );
+    }
+
+    #[test]
+    fn test_italics_star_err() {
         assert_eq!(italics_star("*text"), Err(parse_error("", ErrorKind::Tag)));
         assert_eq!(
             italics_star("text*"),
@@ -277,7 +285,7 @@ mod tests {
     }
 
     #[test]
-    fn test_italics_underscore() {
+    fn test_italics_underscore_ok() {
         assert_eq!(
             italics_underscore("_text_"),
             Ok((
@@ -285,6 +293,10 @@ mod tests {
                 ItalicsUnderscore::new(vec![Plain::new("text".to_string()).into()])
             ))
         );
+    }
+
+    #[test]
+    fn test_italics_underscore_err() {
         assert_eq!(
             italics_underscore("_text"),
             Err(parse_error("", ErrorKind::Tag))
@@ -304,11 +316,15 @@ mod tests {
     }
 
     #[test]
-    fn test_bold() {
+    fn test_bold_ok() {
         assert_eq!(
             bold("**text**"),
             Ok(("", Bold::new(vec![Plain::new("text").into()])))
         );
+    }
+
+    #[test]
+    fn test_bold_err() {
         assert_eq!(bold("**text"), Err(parse_error("", ErrorKind::Tag)));
         assert_eq!(bold("text**"), Err(parse_error("text**", ErrorKind::Tag)));
         assert_eq!(bold("*text*"), Err(parse_error("*text*", ErrorKind::Tag)));
@@ -317,11 +333,15 @@ mod tests {
     }
 
     #[test]
-    fn test_underline() {
+    fn test_underline_ok() {
         assert_eq!(
             underline("__text__"),
             Ok(("", Underline::new(vec![Plain::new("text").into()])))
         );
+    }
+
+    #[test]
+    fn test_underline_err() {
         assert_eq!(underline("__text"), Err(parse_error("", ErrorKind::Tag)));
         assert_eq!(
             underline("text__"),
@@ -336,11 +356,15 @@ mod tests {
     }
 
     #[test]
-    fn test_strikethrough() {
+    fn test_strikethrough_ok() {
         assert_eq!(
             strikethrough("~~text~~"),
             Ok(("", Strikethrough::new(vec![Plain::new("text").into()])))
         );
+    }
+
+    #[test]
+    fn test_strikethrough_err() {
         assert_eq!(
             strikethrough("~~text"),
             Err(parse_error("", ErrorKind::Tag))
@@ -364,11 +388,15 @@ mod tests {
     }
 
     #[test]
-    fn test_spoiler() {
+    fn test_spoiler_ok() {
         assert_eq!(
             spoiler("||text||"),
             Ok(("", Spoiler::new(vec![Plain::new("text").into()])))
         );
+    }
+
+    #[test]
+    fn test_spoiler_err() {
         assert_eq!(spoiler("||text"), Err(parse_error("", ErrorKind::Tag)));
         assert_eq!(
             spoiler("text||"),
@@ -383,11 +411,15 @@ mod tests {
     }
 
     #[test]
-    fn test_one_line_code() {
+    fn test_one_line_code_ok() {
         assert_eq!(
             one_line_code("`*text*`"),
             Ok(("", OneLineCode::new("*text*")))
         );
+    }
+
+    #[test]
+    fn test_one_line_code_err() {
         assert_eq!(
             one_line_code("`*text*"),
             Err(parse_error("", ErrorKind::Tag))
@@ -404,7 +436,7 @@ mod tests {
     }
 
     #[test]
-    fn test_multi_line_code() {
+    fn test_multi_line_code_ok() {
         assert_eq!(
             multi_line_code("```\nhello\nworld\n```"),
             Ok(("", MultiLineCode::new("\nhello\nworld\n", None)))
@@ -421,7 +453,10 @@ mod tests {
             multi_line_code("```\nhello\n```world"),
             Ok(("world", MultiLineCode::new("\nhello\n", None)))
         );
+    }
 
+    #[test]
+    fn test_multi_line_code_err() {
         assert_eq!(
             multi_line_code("```hello"),
             Err(parse_error("", ErrorKind::Tag))
@@ -441,7 +476,7 @@ mod tests {
     }
 
     #[test]
-    fn test_multi_line_code_with_lang() {
+    fn test_multi_line_code_with_lang_ok() {
         assert_eq!(
             multi_line_code("```js\nhello\nworld\n```"),
             Ok((
@@ -456,6 +491,10 @@ mod tests {
                 MultiLineCode::new("\nhello", Some("x86asm".to_string()))
             ))
         );
+    }
+
+    #[test]
+    fn test_multi_line_code_with_lang_err() {
         assert_eq!(
             multi_line_code("```js\nhello"),
             Err(parse_error("", ErrorKind::Tag))

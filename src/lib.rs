@@ -19,17 +19,30 @@
 //! use discord_md::ast::*;
 //! use discord_md::parse;
 //!
-//! let message = "You can write *italics text*, ||spoilers||, `*inline code*`, and more!";
+//! let message = "You can write *italics text*, `*inline code*`, and more!";
+//!
 //! assert_eq!(
 //!     parse(message),
 //!     MarkdownDocument::new(vec![
-//!         Plain::new("You can write ").into(),
-//!         ItalicsStar::new(vec![Plain::new("italics text").into()]).into(),
-//!         Plain::new(", ").into(),
-//!         Spoiler::new(vec![Plain::new("spoilers").into()]).into(),
-//!         Plain::new(", ").into(),
-//!         OneLineCode::new("*inline code*").into(),
-//!         Plain::new(", and more!").into(),
+//!         MarkdownElement::Plain(Box::new(
+//!             Plain::new("You can write ")
+//!         )),
+//!         MarkdownElement::ItalicsStar(Box::new(
+//!             ItalicsStar::new(vec![
+//!                 MarkdownElement::Plain(Box::new(
+//!                     Plain::new("italics text")
+//!                 ))
+//!             ])
+//!         )),
+//!         MarkdownElement::Plain(Box::new(
+//!             Plain::new(", ")
+//!         )),
+//!         MarkdownElement::OneLineCode(Box::new(
+//!             OneLineCode::new("*inline code*")
+//!         )),
+//!         MarkdownElement::Plain(Box::new(
+//!             Plain::new(", and more!")
+//!         )),
 //!     ])
 //! );
 //! ```
@@ -39,16 +52,30 @@
 //! use discord_md::parse;
 //!
 //! let message = "Of course __*nested* styles__ are supported!";
+//!
 //! assert_eq!(
 //!     parse(message),
 //!     MarkdownDocument::new(vec![
-//!         Plain::new("Of course ").into(),
-//!         Underline::new(vec![
-//!             ItalicsStar::new(vec![Plain::new("nested").into()]).into(),
-//!             Plain::new(" styles").into()
-//!         ])
-//!         .into(),
-//!         Plain::new(" are supported!").into(),
+//!         MarkdownElement::Plain(Box::new(
+//!             Plain::new("Of course ")
+//!         )),
+//!         MarkdownElement::Underline(Box::new(
+//!             Underline::new(vec![
+//!                 MarkdownElement::ItalicsStar(Box::new(
+//!                     ItalicsStar::new(vec![
+//!                         MarkdownElement::Plain(Box::new(
+//!                             Plain::new("nested")
+//!                         )),
+//!                     ])
+//!                 )),
+//!                 MarkdownElement::Plain(Box::new(
+//!                     Plain::new(" styles")
+//!                 )),
+//!             ])
+//!         )),
+//!         MarkdownElement::Plain(Box::new(
+//!             Plain::new(" are supported!")
+//!         )),
 //!     ])
 //! );
 //! ```
@@ -60,13 +87,17 @@
 //! let message = r#"```sh
 //! echo "Code block is _available_ too!"
 //! ```"#;
+//!
 //! assert_eq!(
 //!     parse(message),
-//!     MarkdownDocument::new(vec![MultiLineCode::new(
-//!         "\necho \"Code block is _available_ too!\"\n",
-//!         Some("sh".to_string())
-//!     )
-//!     .into()])
+//!     MarkdownDocument::new(vec![
+//!         MarkdownElement::MultiLineCode(Box::new(
+//!             MultiLineCode::new(
+//!                 "\necho \"Code block is _available_ too!\"\n",
+//!                 Some("sh".to_string())
+//!             )
+//!         ))
+//!     ])
 //! );
 //! ```
 
@@ -83,12 +114,23 @@ use ast::MarkdownDocument;
 /// use discord_md::parse;
 ///
 /// let message = "this **is** markdown.";
+///
 /// assert_eq!(
 ///     parse(message),
 ///     MarkdownDocument::new(vec![
-///         Plain::new("this ").into(),
-///         Bold::new(vec![Plain::new("is").into()]).into(),
-///         Plain::new(" markdown.").into(),
+///         MarkdownElement::Plain(Box::new(
+///             Plain::new("this ")
+///         )),
+///         MarkdownElement::Bold(Box::new(
+///             Bold::new(vec![
+///                 MarkdownElement::Plain(Box::new(
+///                     Plain::new("is")
+///                 ))
+///             ])
+///         )),
+///         MarkdownElement::Plain(Box::new(
+///             Plain::new(" markdown.")
+///         )),
 ///     ])
 /// );
 /// ```

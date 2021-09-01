@@ -73,7 +73,7 @@
 pub mod ast;
 mod parser;
 
-use crate::ast::MarkdownDocument;
+use ast::MarkdownDocument;
 
 /// Parses a markdown document and returns AST.
 /// ## Example

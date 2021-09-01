@@ -170,6 +170,17 @@ mod tests {
             ))
         );
         assert_eq!(
+            markdown_element_collection("`__hello__` ||world||"),
+            Ok((
+                "",
+                MarkdownElementCollection::new(vec![
+                    OneLineCode::new("__hello__").into(),
+                    Plain::new(" ").into(),
+                    Spoiler::new(vec![Plain::new("world").into()]).into()
+                ])
+            ))
+        );
+        assert_eq!(
             markdown_element_collection(""),
             Ok(("", MarkdownElementCollection::new(vec![])))
         );
@@ -220,6 +231,17 @@ mod tests {
             markdown_element("`text`"),
             Ok(("", OneLineCode::new("text").into()))
         );
+        assert_eq!(
+            markdown_element("```\ntext```"),
+            Ok(("", MultiLineCode::new("\ntext", None).into()))
+        );
+        assert_eq!(
+            markdown_element("```html\ntext```"),
+            Ok((
+                "",
+                MultiLineCode::new("\ntext", Some("html".to_string())).into()
+            ))
+        );
 
         assert_eq!(
             markdown_element("hello**world**"),
@@ -254,12 +276,18 @@ mod tests {
     }
 
     #[test]
-    fn test_plain() {
+    fn test_plain_ok() {
         assert_eq!(plain("text"), Ok(("", Plain::new("text"))));
         assert_eq!(
             plain("text *italics*"),
             Ok(("*italics*", Plain::new("text ")))
         );
+        assert_eq!(plain("*italics*"), Ok(("*italics*", Plain::new(""))));
+    }
+
+    #[test]
+    fn test_plain_err() {
+        assert_eq!(plain(""), Err(parse_error("", ErrorKind::TakeWhile1)));
     }
 
     #[test]

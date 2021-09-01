@@ -8,7 +8,7 @@ use crate::ast::{
     MarkdownElementCollection, MultiLineCode, OneLineCode, Plain, Spoiler, Strikethrough,
     Underline,
 };
-use nom::character::complete::{alphanumeric1, line_ending};
+use nom::character::complete::{alphanumeric1, newline};
 use nom::combinator::{opt, peek, rest};
 use nom::sequence::{pair, terminated};
 use nom::{
@@ -106,7 +106,7 @@ fn multi_line_code(i: &str) -> IResult<&str, MultiLineCode> {
     map(
         map_parser(
             wrapped("```"),
-            pair(opt(terminated(alphanumeric1, peek(line_ending))), rest),
+            pair(opt(terminated(alphanumeric1, peek(newline))), rest),
         ),
         |(lang, content): (Option<&str>, &str)| {
             MultiLineCode::new(content, lang.map(|x| x.to_string()))

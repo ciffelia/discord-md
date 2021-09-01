@@ -303,7 +303,7 @@ impl fmt::Display for BlockQuote {
             "{}",
             self.content
                 .to_string()
-                .lines()
+                .split('\n')
                 .map(|line| format!("> {}", line))
                 .collect::<Vec<_>>()
                 .join("\n")

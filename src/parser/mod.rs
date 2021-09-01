@@ -37,7 +37,6 @@ fn markdown_element_plain(i: &str) -> IResult<&str, MarkdownElement> {
 
 fn markdown_element_not_plain(i: &str) -> IResult<&str, MarkdownElement> {
     alt((
-        // map(block_quote, MarkdownElement::from),
         map(multi_line_code, MarkdownElement::from),
         map(one_line_code, MarkdownElement::from),
         map(bold, MarkdownElement::from),

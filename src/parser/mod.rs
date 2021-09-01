@@ -31,6 +31,10 @@ fn markdown_element(i: &str) -> IResult<&str, MarkdownElement> {
     alt((markdown_element_not_plain, markdown_element_plain))(i)
 }
 
+fn markdown_element_plain(i: &str) -> IResult<&str, MarkdownElement> {
+    map(plain, MarkdownElement::from)(i)
+}
+
 fn markdown_element_not_plain(i: &str) -> IResult<&str, MarkdownElement> {
     alt((
         // map(block_quote, MarkdownElement::from),
@@ -43,10 +47,6 @@ fn markdown_element_not_plain(i: &str) -> IResult<&str, MarkdownElement> {
         map(strikethrough, MarkdownElement::from),
         map(spoiler, MarkdownElement::from),
     ))(i)
-}
-
-fn markdown_element_plain(i: &str) -> IResult<&str, MarkdownElement> {
-    map(plain, MarkdownElement::from)(i)
 }
 
 fn plain(i: &str) -> IResult<&str, Plain> {

@@ -1,0 +1,8 @@
+[package]
+name = "discord-markdown"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+nom = "7.0.0"
+derive_more = "0.99.16"

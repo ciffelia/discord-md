@@ -39,10 +39,10 @@ fn markdown_element_not_plain(i: &str) -> IResult<&str, MarkdownElement> {
     alt((
         map(multi_line_code, MarkdownElement::from),
         map(one_line_code, MarkdownElement::from),
-        map(bold, MarkdownElement::from),
-        map(underline, MarkdownElement::from),
         map(italics_star, MarkdownElement::from),
         map(italics_underscore, MarkdownElement::from),
+        map(bold, MarkdownElement::from),
+        map(underline, MarkdownElement::from),
         map(strikethrough, MarkdownElement::from),
         map(spoiler, MarkdownElement::from),
     ))(i)

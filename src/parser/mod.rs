@@ -5,8 +5,12 @@ mod test_util;
 
 use crate::ast::{
     Bold, ItalicsStar, ItalicsUnderscore, MarkdownDocument, MarkdownElement,
-    MarkdownElementCollection, OneLineCode, Plain, Spoiler, Strikethrough, Underline,
+    MarkdownElementCollection, MultiLineCode, OneLineCode, Plain, Spoiler, Strikethrough,
+    Underline,
 };
+use nom::character::complete::{alphanumeric1, line_ending};
+use nom::combinator::{opt, peek, rest};
+use nom::sequence::{pair, terminated};
 use nom::{
     branch::alt,
     combinator::{map, map_parser},
@@ -30,7 +34,7 @@ fn markdown_element(i: &str) -> IResult<&str, MarkdownElement> {
 fn markdown_element_not_plain(i: &str) -> IResult<&str, MarkdownElement> {
     alt((
         // map(block_quote, MarkdownElement::from),
-        // map(multi_line_code, MarkdownElement::from),
+        map(multi_line_code, MarkdownElement::from),
         map(one_line_code, MarkdownElement::from),
         map(bold, MarkdownElement::from),
         map(underline, MarkdownElement::from),
@@ -96,6 +100,18 @@ fn spoiler(i: &str) -> IResult<&str, Spoiler> {
 
 fn one_line_code(i: &str) -> IResult<&str, OneLineCode> {
     map(wrapped("`"), OneLineCode::new)(i)
+}
+
+fn multi_line_code(i: &str) -> IResult<&str, MultiLineCode> {
+    map(
+        map_parser(
+            wrapped("```"),
+            pair(opt(terminated(alphanumeric1, peek(line_ending))), rest),
+        ),
+        |(lang, content): (Option<&str>, &str)| {
+            MultiLineCode::new(content, lang.map(|x| x.to_string()))
+        },
+    )(i)
 }
 
 #[cfg(test)]
@@ -385,5 +401,60 @@ mod tests {
             Err(parse_error("*text*", ErrorKind::Tag))
         );
         assert_eq!(one_line_code("``"), Err(parse_error("`", ErrorKind::IsNot)));
+    }
+
+    #[test]
+    fn test_multi_line_code() {
+        assert_eq!(
+            multi_line_code("```\nhello\nworld\n```"),
+            Ok(("", MultiLineCode::new("\nhello\nworld\n", None)))
+        );
+        assert_eq!(
+            multi_line_code("```hello world```"),
+            Ok(("", MultiLineCode::new("hello world", None)))
+        );
+        assert_eq!(
+            multi_line_code("``` hello\nworld```"),
+            Ok(("", MultiLineCode::new(" hello\nworld", None)))
+        );
+        assert_eq!(
+            multi_line_code("```\nhello\n```world"),
+            Ok(("world", MultiLineCode::new("\nhello\n", None)))
+        );
+
+        assert_eq!(
+            multi_line_code("```hello"),
+            Err(parse_error("", ErrorKind::Tag))
+        );
+        assert_eq!(
+            multi_line_code("hello```"),
+            Err(parse_error("hello```", ErrorKind::Tag))
+        );
+        assert_eq!(
+            multi_line_code("hello"),
+            Err(parse_error("hello", ErrorKind::Tag))
+        );
+        assert_eq!(
+            multi_line_code("``````"),
+            Err(parse_error("```", ErrorKind::IsNot))
+        );
+    }
+
+    #[test]
+    fn test_multi_line_code_with_lang() {
+        assert_eq!(
+            multi_line_code("```js\nhello\nworld\n```"),
+            Ok((
+                "",
+                MultiLineCode::new("\nhello\nworld\n", Some("js".to_string()))
+            ))
+        );
+        assert_eq!(
+            multi_line_code("```x86asm\nhello```"),
+            Ok((
+                "",
+                MultiLineCode::new("\nhello", Some("x86asm".to_string()))
+            ))
+        );
     }
 }

@@ -1,6 +1,11 @@
+//! Markdown AST
+
 use derive_more::{Display, From, Into, IntoIterator};
 use std::fmt;
 
+/// A markdown document. The root of AST.
+///
+/// [`MarkdownDocument`] is the root of markdown AST.
 #[derive(Debug, Eq, PartialEq, Display)]
 pub struct MarkdownDocument {
     content: MarkdownElementCollection,

@@ -135,9 +135,14 @@
 //! );
 //! ```
 //!
-//! # Limitations
+//! # Parser limitations
 //!
-//! - Parser cannot parse block quote. `> ` will be treated as plain text.
+//! The parser tries to mimic the behavior of the official Discord client's markdown parser, but it's not perfect.
+//! The following is the list of known limitations.
+//!
+//! - Block quotes are not parsed. `> ` will be treated as plain text.
+//! - Nested emphasis, like `*italics **bold italics** italics*`, may not be parsed properly.
+//! - Intraword emphasis may not be handled properly. The parser treats `foo_bar_baz` as emphasis, while Discord's parser does not.
 
 pub mod ast;
 pub mod builder;
@@ -179,7 +184,12 @@ use ast::MarkdownDocument;
 ///
 /// # Limitations
 ///
-/// Parser cannot parse block quote. `> ` will be treated as plain text.
+/// The parser tries to mimic the behavior of the official Discord client's markdown parser, but it's not perfect.
+/// The following is the list of known limitations.
+///
+/// - Block quotes are not parsed. `> ` will be treated as plain text.
+/// - Nested emphasis, like `*italics **bold italics** italics*`, may not be parsed properly.
+/// - Intraword emphasis may not be handled properly. The parser treats `foo_bar_baz` as emphasis, while Discord's parser does not.
 pub fn parse(msg: &str) -> MarkdownDocument {
     // Since there are no invalid markdown document, parsing should never fails.
     let (rest, doc) = parser::markdown_document(msg).unwrap();

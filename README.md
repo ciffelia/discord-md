@@ -104,9 +104,14 @@ discord-md = { git = "https://github.com/ciffelia/discord-md" }
 
 Coming soon
 
-## Limitations
+## Parser limitations
 
-- Parser cannot parse block quote. `> ` will be treated as plain text.
+The parser tries to mimic the behavior of the official Discord client's markdown parser, but it's not perfect. 
+The following is the list of known limitations.
+
+- Block quotes are not parsed. `> ` will be treated as plain text.
+- Nested emphasis, like `*italics **bold italics** italics*`, may not be parsed properly.
+- Intraword emphasis may not be handled properly. The parser treats `foo_bar_baz` as emphasis, while Discord's parser does not.
 
 ## License
 

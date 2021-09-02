@@ -91,7 +91,7 @@ fn main() {
   > some text
   ```
 
-# Installation
+## Installation
 
 Add the following to your `Cargo.toml` file:
 
@@ -100,14 +100,14 @@ Add the following to your `Cargo.toml` file:
 discord-md = { git = "https://github.com/ciffelia/discord-md" }
 ```
 
-# Documentation
+## Documentation
 
 Coming soon
 
-# Limitations
+## Limitations
 
 - Parser cannot parse block quote. `> ` will be treated as plain text.
 
-# License
+## License
 
 [MIT License](LICENSE)

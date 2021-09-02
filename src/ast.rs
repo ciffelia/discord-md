@@ -60,24 +60,6 @@ pub enum MarkdownElement {
     BlockQuote(Box<BlockQuote>),
 }
 
-impl From<&str> for MarkdownElement {
-    fn from(value: &str) -> Self {
-        Plain::new(value).into()
-    }
-}
-
-impl From<String> for MarkdownElement {
-    fn from(value: String) -> Self {
-        Plain::new(value).into()
-    }
-}
-
-impl From<&String> for MarkdownElement {
-    fn from(value: &String) -> Self {
-        Plain::new(value).into()
-    }
-}
-
 #[derive(Debug, Eq, PartialEq, Display)]
 pub struct Plain {
     content: String,
@@ -395,27 +377,6 @@ mod tests {
             ])
             .to_string(),
             "**bold** plain __**underline bold**__"
-        );
-    }
-
-    #[test]
-    fn test_element_from_str() {
-        assert_eq!(
-            MarkdownElement::from("plain text"),
-            MarkdownElement::Plain(Box::new(Plain::new("plain text")))
-        );
-    }
-
-    #[test]
-    fn test_element_from_string() {
-        let text = "plain text".to_string();
-        assert_eq!(
-            MarkdownElement::from(&text),
-            MarkdownElement::Plain(Box::new(Plain::new("plain text")))
-        );
-        assert_eq!(
-            MarkdownElement::from(text),
-            MarkdownElement::Plain(Box::new(Plain::new("plain text")))
         );
     }
 

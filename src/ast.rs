@@ -1,36 +1,84 @@
-//! Markdown AST
+//! Markdown AST structure
+//!
+//! [`ast`](crate::ast) module provides AST components.
+//!
+//! Note: [`builder`](crate::builder) module provides helper functions to build AST in less lines of code.
+//!
+//! # AST structure
+//!
+//! An AST consists of [`MarkdownDocument`], [`MarkdownElementCollection`], and [`MarkdownElement`].
+//!
+//! - [`MarkdownDocument`] is the root of AST. It contains a [`MarkdownElementCollection`].
+//! - [`MarkdownElementCollection`] is a collection of markdown elements. It consists of one or more [`MarkdownElement`].
+//! - [`MarkdownElement`] is a markdown element, such as `plain text` and `*italics text*`. The content of [`MarkdownElement`] can be nested. For instance, `__*nested* styles__` is also valid markdown element.
+//!
+//! # Generating markdown text
+//!
+//! `MarkdownDocument::to_string()` generates markdown text from the AST.
+//!
+//! ## Example
+//!
+//! ```
+//! use discord_md::ast::*;
+//!
+//! let ast = MarkdownDocument::new(vec![
+//!     MarkdownElement::Bold(Box::new(Bold::new("bold"))),
+//!     MarkdownElement::Plain(Box::new(Plain::new(" text")))
+//! ]);
+//!
+//! assert_eq!(ast.to_string(), "**bold** text");
+//! ```
 
 use derive_more::{Display, From, Into, IntoIterator};
 use std::fmt;
 
 /// A markdown document. The root of AST.
 ///
-/// [`MarkdownDocument`] is the root of markdown AST.
+/// # Generating markdown text
+///
+/// `to_string()` generates markdown text from the AST.
+///
+/// ## Example
+///
+/// ```
+/// use discord_md::ast::*;
+///
+/// let ast = MarkdownDocument::new(vec![
+///     MarkdownElement::Bold(Box::new(Bold::new("bold text")))
+/// ]);
+///
+/// assert_eq!(ast.to_string(), "**bold text**");
+/// ```
 #[derive(Debug, Eq, PartialEq, Display)]
 pub struct MarkdownDocument {
     content: MarkdownElementCollection,
 }
 
 impl MarkdownDocument {
+    /// Creates a markdown document.
     pub fn new(content: impl Into<MarkdownElementCollection>) -> Self {
         Self {
             content: content.into(),
         }
     }
 
+    /// Returns the content of markdown document.
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
 }
 
+/// A collection of [`MarkdownElement`].
 #[derive(Debug, Eq, PartialEq, From, Into, IntoIterator)]
 pub struct MarkdownElementCollection(Vec<MarkdownElement>);
 
 impl MarkdownElementCollection {
+    /// Creates a collection of markdown element.
     pub fn new(value: Vec<MarkdownElement>) -> Self {
         Self(value)
     }
 
+    /// Returns the collection of markdown element in [`Vec`].
     pub fn get(&self) -> &Vec<MarkdownElement> {
         &self.0
     }
@@ -46,37 +94,69 @@ impl fmt::Display for MarkdownElementCollection {
     }
 }
 
+/// A markdown element.
 #[derive(Debug, Eq, PartialEq, Display)]
 pub enum MarkdownElement {
+    /// Plain text.
     Plain(Box<Plain>),
+
+    /// Italics text, wrapped in `*`.
     ItalicsStar(Box<ItalicsStar>),
+
+    /// Italics text, wrapped in `_`.
     ItalicsUnderscore(Box<ItalicsUnderscore>),
+
+    /// Bold text, wrapped in `**`.
     Bold(Box<Bold>),
+
+    /// Underline text, wrapped in `__`.
     Underline(Box<Underline>),
+
+    /// Strikethrough text, wrapped in `~~`.
     Strikethrough(Box<Strikethrough>),
+
+    /// Spoiler text, wrapped in `||`.
     Spoiler(Box<Spoiler>),
+
+    /// Inline code block, wrapped in `` ` ``.
     OneLineCode(Box<OneLineCode>),
+
+    /// Multiline code block, wrapped in ```` ``` ````.
     MultiLineCode(Box<MultiLineCode>),
+
+    /// Block quote, preceded by `> `.
     BlockQuote(Box<BlockQuote>),
 }
 
+/// Plain text.
+///
+/// # Example markdown text
+///
+/// `plain text` (plain text)
 #[derive(Debug, Eq, PartialEq, Display)]
 pub struct Plain {
     content: String,
 }
 
 impl Plain {
+    /// Creates plain text.
     pub fn new(content: impl Into<String>) -> Self {
         Self {
             content: content.into(),
         }
     }
 
+    /// Returns the content of plain text.
     pub fn content(&self) -> &str {
         &self.content
     }
 }
 
+/// Italics text, wrapped in `*`.
+///
+/// # Example markdown text
+///
+/// `*italics text*` (*italics text*)
 #[derive(Debug, Eq, PartialEq, Display)]
 #[display(fmt = "*{}*", content)]
 pub struct ItalicsStar {
@@ -84,17 +164,24 @@ pub struct ItalicsStar {
 }
 
 impl ItalicsStar {
+    /// Creates italics text wrapped in `*`.
     pub fn new(content: impl Into<MarkdownElementCollection>) -> Self {
         Self {
             content: content.into(),
         }
     }
 
+    /// Returns the content of italics text.
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
 }
 
+/// Italics text, wrapped in `_`.
+///
+/// # Example markdown text
+///
+/// `_italics text_` (_italics text_)
 #[derive(Debug, Eq, PartialEq, Display)]
 #[display(fmt = "_{}_", content)]
 pub struct ItalicsUnderscore {
@@ -102,17 +189,24 @@ pub struct ItalicsUnderscore {
 }
 
 impl ItalicsUnderscore {
+    /// Creates italics text wrapped in `_`.
     pub fn new(content: impl Into<MarkdownElementCollection>) -> Self {
         Self {
             content: content.into(),
         }
     }
 
+    /// Returns the content of italics text.
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
 }
 
+/// Bold text, wrapped in `**`.
+///
+/// # Example markdown text
+///
+/// `**bold text**` (**bold text**)
 #[derive(Debug, Eq, PartialEq, Display)]
 #[display(fmt = "**{}**", content)]
 pub struct Bold {
@@ -120,17 +214,24 @@ pub struct Bold {
 }
 
 impl Bold {
+    /// Creates bold text.
     pub fn new(content: impl Into<MarkdownElementCollection>) -> Self {
         Self {
             content: content.into(),
         }
     }
 
+    /// Returns the content of bold text.
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
 }
 
+/// Underline text, wrapped in `__`.
+///
+/// # Example markdown text
+///
+/// `__underline text__`
 #[derive(Debug, Eq, PartialEq, Display)]
 #[display(fmt = "__{}__", content)]
 pub struct Underline {
@@ -138,17 +239,24 @@ pub struct Underline {
 }
 
 impl Underline {
+    /// Creates underline text.
     pub fn new(content: impl Into<MarkdownElementCollection>) -> Self {
         Self {
             content: content.into(),
         }
     }
 
+    /// Returns the content of underline text.
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
 }
 
+/// Strikethrough text, wrapped in `~~`.
+///
+/// # Example markdown text
+///
+/// `~~strikethrough text~~` (~~strikethrough text~~)
 #[derive(Debug, Eq, PartialEq, Display)]
 #[display(fmt = "~~{}~~", content)]
 pub struct Strikethrough {
@@ -156,17 +264,24 @@ pub struct Strikethrough {
 }
 
 impl Strikethrough {
+    /// Creates strikethrough text.
     pub fn new(content: impl Into<MarkdownElementCollection>) -> Self {
         Self {
             content: content.into(),
         }
     }
 
+    /// Returns the content of strikethrough text.
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
 }
 
+/// Spoiler text, wrapped in `||`.
+///
+/// # Example markdown text
+///
+/// `||spoiler text||`
 #[derive(Debug, Eq, PartialEq, Display)]
 #[display(fmt = "||{}||", content)]
 pub struct Spoiler {
@@ -174,17 +289,24 @@ pub struct Spoiler {
 }
 
 impl Spoiler {
+    /// Creates spoiler text.
     pub fn new(content: impl Into<MarkdownElementCollection>) -> Self {
         Self {
             content: content.into(),
         }
     }
 
+    /// Returns the content of spoiler text.
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
 }
 
+/// Inline code block, wrapped in `` ` ``.
+///
+/// # Example markdown text
+///
+/// `` `let foo = "bar";` `` (`let foo = "bar";`)
 #[derive(Debug, Eq, PartialEq, Display)]
 #[display(fmt = "`{}`", content)]
 pub struct OneLineCode {
@@ -192,17 +314,30 @@ pub struct OneLineCode {
 }
 
 impl OneLineCode {
+    /// Creates an inline code block.
     pub fn new(content: impl Into<String>) -> Self {
         Self {
             content: content.into(),
         }
     }
 
+    /// Returns the content of the code block.
     pub fn content(&self) -> &str {
         &self.content
     }
 }
 
+/// Multiline code block, wrapped in ```` ``` ````.
+///
+/// # Example markdown text
+///
+/// ````text
+/// ```html
+/// <p>
+///   code block
+/// </p>
+/// ```
+/// ````
 #[derive(Debug, Eq, PartialEq, Display)]
 #[display(fmt = "```{}{}```", r#"language.as_deref().unwrap_or("")"#, content)]
 pub struct MultiLineCode {
@@ -211,37 +346,50 @@ pub struct MultiLineCode {
 }
 
 impl MultiLineCode {
-    // language の型を Option<impl Into<String>> にしたいが、そうすると None を渡せなくなる
-    // never type の実装を待つ必要がありそう
-    // https://stackoverflow.com/q/42141129
+    /// Creates a multiline code block.
     pub fn new(content: impl Into<String>, language: Option<String>) -> Self {
+        // language の型を Option<impl Into<String>> にしたいが、そうすると None を渡せなくなる
+        // never type の実装を待つ必要がありそう
+        // https://stackoverflow.com/q/42141129
         Self {
             content: content.into(),
             language,
         }
     }
 
+    /// Returns the content of the code block.
     pub fn content(&self) -> &str {
         &self.content
     }
 
+    /// Returns the language of the code block.
     pub fn language(&self) -> Option<&str> {
         self.language.as_deref()
     }
 }
 
+/// Block quote, preceded by `> `.
+///
+/// # Example markdown text
+///
+/// ```text
+/// > this is
+/// > block quote
+/// ```
 #[derive(Debug, Eq, PartialEq)]
 pub struct BlockQuote {
     content: MarkdownElementCollection,
 }
 
 impl BlockQuote {
+    /// Creates a block quote text.
     pub fn new(content: impl Into<MarkdownElementCollection>) -> Self {
         Self {
             content: content.into(),
         }
     }
 
+    /// Returns the content of the block quote text.
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }

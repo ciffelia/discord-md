@@ -1,4 +1,4 @@
-//! `discord_md` is a Rust library that provides parser and builder for Discord's subset of markdown.
+//! `discord_md` is a Rust library that provides parser and builder for Discord's markdown.
 //!
 //! # Installation
 //!
@@ -11,7 +11,7 @@
 //!
 //! # Parsing
 //!
-//! [`parse`] parses a markdown document and returns AST.
+//! [`parse`] parses a markdown document and returns an AST.
 //!
 //! ## Example
 //!
@@ -21,29 +21,31 @@
 //!
 //! let message = "You can write *italics text*, `*inline code*`, and more!";
 //!
+//! let ast = MarkdownDocument::new(vec![
+//!     MarkdownElement::Plain(Box::new(
+//!         Plain::new("You can write ")
+//!     )),
+//!     MarkdownElement::ItalicsStar(Box::new(
+//!         ItalicsStar::new(vec![
+//!             MarkdownElement::Plain(Box::new(
+//!                 Plain::new("italics text")
+//!             ))
+//!         ])
+//!     )),
+//!     MarkdownElement::Plain(Box::new(
+//!         Plain::new(", ")
+//!     )),
+//!     MarkdownElement::OneLineCode(Box::new(
+//!         OneLineCode::new("*inline code*")
+//!     )),
+//!     MarkdownElement::Plain(Box::new(
+//!         Plain::new(", and more!")
+//!     )),
+//! ]);
+//!
 //! assert_eq!(
 //!     parse(message),
-//!     MarkdownDocument::new(vec![
-//!         MarkdownElement::Plain(Box::new(
-//!             Plain::new("You can write ")
-//!         )),
-//!         MarkdownElement::ItalicsStar(Box::new(
-//!             ItalicsStar::new(vec![
-//!                 MarkdownElement::Plain(Box::new(
-//!                     Plain::new("italics text")
-//!                 ))
-//!             ])
-//!         )),
-//!         MarkdownElement::Plain(Box::new(
-//!             Plain::new(", ")
-//!         )),
-//!         MarkdownElement::OneLineCode(Box::new(
-//!             OneLineCode::new("*inline code*")
-//!         )),
-//!         MarkdownElement::Plain(Box::new(
-//!             Plain::new(", and more!")
-//!         )),
-//!     ])
+//!     ast
 //! );
 //! ```
 //!
@@ -53,30 +55,32 @@
 //!
 //! let message = "Of course __*nested* styles__ are supported!";
 //!
+//! let ast = MarkdownDocument::new(vec![
+//!     MarkdownElement::Plain(Box::new(
+//!         Plain::new("Of course ")
+//!     )),
+//!     MarkdownElement::Underline(Box::new(
+//!         Underline::new(vec![
+//!             MarkdownElement::ItalicsStar(Box::new(
+//!                 ItalicsStar::new(vec![
+//!                     MarkdownElement::Plain(Box::new(
+//!                         Plain::new("nested")
+//!                     ))
+//!                 ])
+//!             )),
+//!             MarkdownElement::Plain(Box::new(
+//!                 Plain::new(" styles")
+//!             )),
+//!         ])
+//!     )),
+//!     MarkdownElement::Plain(Box::new(
+//!         Plain::new(" are supported!")
+//!     )),
+//! ]);
+//!
 //! assert_eq!(
 //!     parse(message),
-//!     MarkdownDocument::new(vec![
-//!         MarkdownElement::Plain(Box::new(
-//!             Plain::new("Of course ")
-//!         )),
-//!         MarkdownElement::Underline(Box::new(
-//!             Underline::new(vec![
-//!                 MarkdownElement::ItalicsStar(Box::new(
-//!                     ItalicsStar::new(vec![
-//!                         MarkdownElement::Plain(Box::new(
-//!                             Plain::new("nested")
-//!                         )),
-//!                     ])
-//!                 )),
-//!                 MarkdownElement::Plain(Box::new(
-//!                     Plain::new(" styles")
-//!                 )),
-//!             ])
-//!         )),
-//!         MarkdownElement::Plain(Box::new(
-//!             Plain::new(" are supported!")
-//!         )),
-//!     ])
+//!     ast
 //! );
 //! ```
 //!
@@ -88,18 +92,52 @@
 //! echo "Code block is _available_ too!"
 //! ```"#;
 //!
+//! let ast = MarkdownDocument::new(vec![
+//!     MarkdownElement::MultiLineCode(Box::new(
+//!         MultiLineCode::new(
+//!             "\necho \"Code block is _available_ too!\"\n",
+//!             Some("sh".to_string())
+//!         )
+//!     ))
+//! ]);
+//!
 //! assert_eq!(
 //!     parse(message),
-//!     MarkdownDocument::new(vec![
-//!         MarkdownElement::MultiLineCode(Box::new(
-//!             MultiLineCode::new(
-//!                 "\necho \"Code block is _available_ too!\"\n",
-//!                 Some("sh".to_string())
-//!             )
-//!         ))
-//!     ])
+//!     ast
 //! );
 //! ```
+//!
+//! # Generating
+//!
+//! First, build an AST with [`builder`] module.
+//! Then call `to_string()` to generate markdown text from an AST.
+//!
+//! ## Example
+//!
+//! ```
+//! use discord_md::ast::MarkdownDocument;
+//! use discord_md::builder::*;
+//!
+//! let ast = MarkdownDocument::new(vec![
+//!     plain("generating "),
+//!     one_line_code("markdown"),
+//!     plain(" is "),
+//!     underline(vec![
+//!         bold("easy"),
+//!         plain(" and "),
+//!         bold("fun!"),
+//!     ]),
+//! ]);
+//!
+//! assert_eq!(
+//!     ast.to_string(),
+//!     "generating `markdown` is __**easy** and **fun!**__"
+//! );
+//! ```
+//!
+//! # Limitations
+//!
+//! - Parser cannot parse block quote. `> ` will be treated as plain text.
 
 pub mod ast;
 pub mod builder;
@@ -109,7 +147,7 @@ use ast::MarkdownDocument;
 
 /// Parses a markdown document and returns AST.
 ///
-/// ## Example
+/// # Example
 ///
 /// ```
 /// use discord_md::ast::*;
@@ -117,25 +155,31 @@ use ast::MarkdownDocument;
 ///
 /// let message = "this **is** markdown.";
 ///
+/// let ast = MarkdownDocument::new(vec![
+///     MarkdownElement::Plain(Box::new(
+///         Plain::new("this ")
+///     )),
+///     MarkdownElement::Bold(Box::new(
+///         Bold::new(vec![
+///             MarkdownElement::Plain(Box::new(
+///                 Plain::new("is")
+///             ))
+///         ])
+///     )),
+///     MarkdownElement::Plain(Box::new(
+///         Plain::new(" markdown.")
+///     )),
+/// ]);
+///
 /// assert_eq!(
 ///     parse(message),
-///     MarkdownDocument::new(vec![
-///         MarkdownElement::Plain(Box::new(
-///             Plain::new("this ")
-///         )),
-///         MarkdownElement::Bold(Box::new(
-///             Bold::new(vec![
-///                 MarkdownElement::Plain(Box::new(
-///                     Plain::new("is")
-///                 ))
-///             ])
-///         )),
-///         MarkdownElement::Plain(Box::new(
-///             Plain::new(" markdown.")
-///         )),
-///     ])
+///     ast
 /// );
 /// ```
+///
+/// # Limitations
+///
+/// Parser cannot parse block quote. `> ` will be treated as plain text.
 pub fn parse(msg: &str) -> MarkdownDocument {
     // Since there are no invalid markdown document, parsing should never fails.
     let (rest, doc) = parser::markdown_document(msg).unwrap();

@@ -1,4 +1,4 @@
-//! Useful parsers
+//! Useful parser functions written with [`nom`]
 
 use nom::{
     bytes::complete::{is_not, tag, take_while1},
@@ -19,7 +19,7 @@ pub fn rest1(s: &str) -> IResult<&str, &str> {
     take_while1(|_| true)(s)
 }
 
-/// Gets an object sandwiched by a pattern.
+/// Gets an object sandwiched in a pattern.
 ///
 /// Returns `Err(Err::Error((_, ErrorKind::Tag)))` if the input doesn't match the pattern (i.e. sandwich doesn't start),
 /// or matches the pattern only once (i.e. sandwich doesn't end).

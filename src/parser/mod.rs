@@ -1,3 +1,5 @@
+//! Markdown parser functions written with [`nom`]
+
 mod util;
 
 #[cfg(test)]
@@ -19,22 +21,27 @@ use nom::{
 };
 use util::{rest1, take_before, wrapped};
 
+/// Parses a markdown document.
 pub fn markdown_document(i: &str) -> IResult<&str, MarkdownDocument> {
     map(markdown_element_collection, MarkdownDocument::new)(i)
 }
 
+/// Parses a collection of markdown element.
 fn markdown_element_collection(i: &str) -> IResult<&str, MarkdownElementCollection> {
     map(many0(markdown_element), MarkdownElementCollection::from)(i)
 }
 
+/// Parses a markdown element.
 fn markdown_element(i: &str) -> IResult<&str, MarkdownElement> {
     alt((markdown_element_not_plain, markdown_element_plain))(i)
 }
 
+/// Parses a plain markdown element.
 fn markdown_element_plain(i: &str) -> IResult<&str, MarkdownElement> {
     map(plain, MarkdownElement::from)(i)
 }
 
+/// Parses a styled markdown element.
 fn markdown_element_not_plain(i: &str) -> IResult<&str, MarkdownElement> {
     alt((
         map(multi_line_code, MarkdownElement::from),
@@ -48,6 +55,7 @@ fn markdown_element_not_plain(i: &str) -> IResult<&str, MarkdownElement> {
     ))(i)
 }
 
+/// Parses plain text.
 fn plain(i: &str) -> IResult<&str, Plain> {
     map(
         alt((take_before(markdown_element_not_plain), rest1)),
@@ -55,6 +63,7 @@ fn plain(i: &str) -> IResult<&str, Plain> {
     )(i)
 }
 
+/// Parses italics text wrapped in `*`.
 fn italics_star(i: &str) -> IResult<&str, ItalicsStar> {
     map(
         map_parser(wrapped("*"), markdown_element_collection),
@@ -62,6 +71,7 @@ fn italics_star(i: &str) -> IResult<&str, ItalicsStar> {
     )(i)
 }
 
+/// Parses italics text wrapped in `_`.
 fn italics_underscore(i: &str) -> IResult<&str, ItalicsUnderscore> {
     map(
         map_parser(wrapped("_"), markdown_element_collection),
@@ -69,6 +79,7 @@ fn italics_underscore(i: &str) -> IResult<&str, ItalicsUnderscore> {
     )(i)
 }
 
+/// Parses bold text.
 fn bold(i: &str) -> IResult<&str, Bold> {
     map(
         map_parser(wrapped("**"), markdown_element_collection),
@@ -76,6 +87,7 @@ fn bold(i: &str) -> IResult<&str, Bold> {
     )(i)
 }
 
+/// Parses underline text.
 fn underline(i: &str) -> IResult<&str, Underline> {
     map(
         map_parser(wrapped("__"), markdown_element_collection),
@@ -83,6 +95,7 @@ fn underline(i: &str) -> IResult<&str, Underline> {
     )(i)
 }
 
+/// Parses strikethrough text.
 fn strikethrough(i: &str) -> IResult<&str, Strikethrough> {
     map(
         map_parser(wrapped("~~"), markdown_element_collection),
@@ -90,6 +103,7 @@ fn strikethrough(i: &str) -> IResult<&str, Strikethrough> {
     )(i)
 }
 
+/// Parses spoiler text.
 fn spoiler(i: &str) -> IResult<&str, Spoiler> {
     map(
         map_parser(wrapped("||"), markdown_element_collection),
@@ -97,10 +111,12 @@ fn spoiler(i: &str) -> IResult<&str, Spoiler> {
     )(i)
 }
 
+/// Parses an inline code block.
 fn one_line_code(i: &str) -> IResult<&str, OneLineCode> {
     map(wrapped("`"), OneLineCode::new)(i)
 }
 
+/// Parses a multiline code block.
 fn multi_line_code(i: &str) -> IResult<&str, MultiLineCode> {
     map(
         map_parser(

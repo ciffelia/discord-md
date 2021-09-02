@@ -50,7 +50,7 @@ jobs:
         with:
           toolchain: stable
           profile: minimal
-          components: rustdoc
+          components: rust-docs
           override: true
 
       - name: Generate documentation

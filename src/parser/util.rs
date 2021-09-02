@@ -5,11 +5,9 @@ use nom::{
     character::complete::anychar,
     combinator::{peek, recognize, rest, verify},
     error::Error,
-    lib::std::ops::{RangeFrom, RangeTo},
     multi::many_till,
     sequence::delimited,
-    AsChar, Compare, FindToken, IResult, InputIter, InputLength, InputTake, InputTakeAtPosition,
-    Offset, Parser, Slice,
+    Compare, FindToken, IResult, InputLength, InputTake, InputTakeAtPosition, Parser,
 };
 
 /// Return the remaining input.
@@ -37,12 +35,9 @@ where
 /// Returns the *shortest* input slice until it matches a parser.
 ///
 /// Returns `Err(Err::Error((_, ErrorKind::Eof)))` if the input doesn't match the parser.
-pub fn take_before<Input, FOutput, F>(f: F) -> impl FnMut(Input) -> IResult<Input, Input>
+pub fn take_before<'a, FOutput, F>(f: F) -> impl FnMut(&'a str) -> IResult<&'a str, &'a str>
 where
-    Input:
-        InputIter + InputLength + Offset + Slice<RangeFrom<usize>> + Slice<RangeTo<usize>> + Clone,
-    <Input as InputIter>::Item: AsChar,
-    F: Parser<Input, FOutput, Error<Input>>,
+    F: Parser<&'a str, FOutput, Error<&'a str>>,
 {
     recognize(many_till(anychar, peek(f)))
 }

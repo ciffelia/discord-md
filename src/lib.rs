@@ -156,11 +156,15 @@ mod tests {
         assert_eq!(
             parse(message),
             MarkdownDocument::new(vec![
-                ItalicsStar::new(vec![Plain::new("italics").into()]).into(),
-                Plain::new(", ").into(),
-                Spoiler::new(vec![Plain::new("spoilers").into()]).into(),
-                Plain::new(", ").into(),
-                OneLineCode::new("*inline code*").into(),
+                MarkdownElement::ItalicsStar(Box::new(ItalicsStar::new(vec![
+                    MarkdownElement::Plain(Box::new(Plain::new("italics")))
+                ]))),
+                MarkdownElement::Plain(Box::new(Plain::new(", "))),
+                MarkdownElement::Spoiler(Box::new(Spoiler::new(vec![MarkdownElement::Plain(
+                    Box::new(Plain::new("spoilers"))
+                )]))),
+                MarkdownElement::Plain(Box::new(Plain::new(", "))),
+                MarkdownElement::OneLineCode(Box::new(OneLineCode::new("*inline code*"))),
             ])
         );
     }
@@ -171,12 +175,13 @@ mod tests {
         assert_eq!(
             parse(message),
             MarkdownDocument::new(vec![
-                Underline::new(vec![
-                    ItalicsStar::new(vec![Plain::new("nested").into()]).into(),
-                    Plain::new(" styles").into()
-                ])
-                .into(),
-                Plain::new(" supported").into(),
+                MarkdownElement::Underline(Box::new(Underline::new(vec![
+                    MarkdownElement::ItalicsStar(Box::new(ItalicsStar::new(vec![
+                        MarkdownElement::Plain(Box::new(Plain::new("nested")))
+                    ]))),
+                    MarkdownElement::Plain(Box::new(Plain::new(" styles")))
+                ]))),
+                MarkdownElement::Plain(Box::new(Plain::new(" supported"))),
             ])
         );
     }
@@ -191,11 +196,12 @@ const cond = a > b || c < d || e === f;
         .trim();
         assert_eq!(
             parse(message),
-            MarkdownDocument::new(vec![MultiLineCode::new(
-                "\nconst cond = a > b || c < d || e === f;\n",
-                Some("js".to_string())
-            )
-            .into()])
+            MarkdownDocument::new(vec![MarkdownElement::MultiLineCode(Box::new(
+                MultiLineCode::new(
+                    "\nconst cond = a > b || c < d || e === f;\n",
+                    Some("js".to_string())
+                )
+            ))])
         );
     }
 }

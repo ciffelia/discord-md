@@ -268,6 +268,24 @@ impl From<MarkdownElement> for MarkdownElementCollection {
     }
 }
 
+impl From<&str> for MarkdownElementCollection {
+    fn from(value: &str) -> Self {
+        MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(value)))])
+    }
+}
+
+impl From<String> for MarkdownElementCollection {
+    fn from(value: String) -> Self {
+        MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(value)))])
+    }
+}
+
+impl From<&String> for MarkdownElementCollection {
+    fn from(value: &String) -> Self {
+        MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(value)))])
+    }
+}
+
 impl From<Plain> for MarkdownElement {
     fn from(value: Plain) -> Self {
         MarkdownElement::Plain(Box::new(value))
@@ -512,6 +530,33 @@ mod tests {
             MarkdownElementCollection::from(MarkdownElement::Plain(Box::new(Plain::new(
                 "plain text"
             )))),
+            MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
+                "plain text"
+            )))]),
+        );
+    }
+
+    #[test]
+    fn test_element_collection_from_str() {
+        assert_eq!(
+            MarkdownElementCollection::from("plain text"),
+            MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
+                "plain text"
+            )))]),
+        );
+    }
+
+    #[test]
+    fn test_element_collection_from_string() {
+        let test_case = "plain text".to_string();
+        assert_eq!(
+            MarkdownElementCollection::from(&test_case),
+            MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
+                "plain text"
+            )))]),
+        );
+        assert_eq!(
+            MarkdownElementCollection::from(test_case),
             MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
                 "plain text"
             )))]),

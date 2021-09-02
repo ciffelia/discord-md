@@ -77,12 +77,6 @@ impl Plain {
     }
 }
 
-impl From<Plain> for MarkdownElement {
-    fn from(value: Plain) -> Self {
-        MarkdownElement::Plain(Box::new(value))
-    }
-}
-
 #[derive(Debug, Eq, PartialEq, Display)]
 #[display(fmt = "*{}*", content)]
 pub struct ItalicsStar {
@@ -98,12 +92,6 @@ impl ItalicsStar {
 
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
-    }
-}
-
-impl From<ItalicsStar> for MarkdownElement {
-    fn from(value: ItalicsStar) -> Self {
-        MarkdownElement::ItalicsStar(Box::new(value))
     }
 }
 
@@ -125,12 +113,6 @@ impl ItalicsUnderscore {
     }
 }
 
-impl From<ItalicsUnderscore> for MarkdownElement {
-    fn from(value: ItalicsUnderscore) -> Self {
-        MarkdownElement::ItalicsUnderscore(Box::new(value))
-    }
-}
-
 #[derive(Debug, Eq, PartialEq, Display)]
 #[display(fmt = "**{}**", content)]
 pub struct Bold {
@@ -146,12 +128,6 @@ impl Bold {
 
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
-    }
-}
-
-impl From<Bold> for MarkdownElement {
-    fn from(value: Bold) -> Self {
-        MarkdownElement::Bold(Box::new(value))
     }
 }
 
@@ -173,12 +149,6 @@ impl Underline {
     }
 }
 
-impl From<Underline> for MarkdownElement {
-    fn from(value: Underline) -> Self {
-        MarkdownElement::Underline(Box::new(value))
-    }
-}
-
 #[derive(Debug, Eq, PartialEq, Display)]
 #[display(fmt = "~~{}~~", content)]
 pub struct Strikethrough {
@@ -194,12 +164,6 @@ impl Strikethrough {
 
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
-    }
-}
-
-impl From<Strikethrough> for MarkdownElement {
-    fn from(value: Strikethrough) -> Self {
-        MarkdownElement::Strikethrough(Box::new(value))
     }
 }
 
@@ -221,12 +185,6 @@ impl Spoiler {
     }
 }
 
-impl From<Spoiler> for MarkdownElement {
-    fn from(value: Spoiler) -> Self {
-        MarkdownElement::Spoiler(Box::new(value))
-    }
-}
-
 #[derive(Debug, Eq, PartialEq, Display)]
 #[display(fmt = "`{}`", content)]
 pub struct OneLineCode {
@@ -242,12 +200,6 @@ impl OneLineCode {
 
     pub fn content(&self) -> &str {
         &self.content
-    }
-}
-
-impl From<OneLineCode> for MarkdownElement {
-    fn from(value: OneLineCode) -> Self {
-        MarkdownElement::OneLineCode(Box::new(value))
     }
 }
 
@@ -275,12 +227,6 @@ impl MultiLineCode {
 
     pub fn language(&self) -> Option<&str> {
         self.language.as_deref()
-    }
-}
-
-impl From<MultiLineCode> for MarkdownElement {
-    fn from(value: MultiLineCode) -> Self {
-        MarkdownElement::MultiLineCode(Box::new(value))
     }
 }
 
@@ -313,6 +259,60 @@ impl fmt::Display for BlockQuote {
                 .collect::<Vec<_>>()
                 .join("\n")
         )
+    }
+}
+
+impl From<Plain> for MarkdownElement {
+    fn from(value: Plain) -> Self {
+        MarkdownElement::Plain(Box::new(value))
+    }
+}
+
+impl From<ItalicsStar> for MarkdownElement {
+    fn from(value: ItalicsStar) -> Self {
+        MarkdownElement::ItalicsStar(Box::new(value))
+    }
+}
+
+impl From<ItalicsUnderscore> for MarkdownElement {
+    fn from(value: ItalicsUnderscore) -> Self {
+        MarkdownElement::ItalicsUnderscore(Box::new(value))
+    }
+}
+
+impl From<Bold> for MarkdownElement {
+    fn from(value: Bold) -> Self {
+        MarkdownElement::Bold(Box::new(value))
+    }
+}
+
+impl From<Underline> for MarkdownElement {
+    fn from(value: Underline) -> Self {
+        MarkdownElement::Underline(Box::new(value))
+    }
+}
+
+impl From<Strikethrough> for MarkdownElement {
+    fn from(value: Strikethrough) -> Self {
+        MarkdownElement::Strikethrough(Box::new(value))
+    }
+}
+
+impl From<Spoiler> for MarkdownElement {
+    fn from(value: Spoiler) -> Self {
+        MarkdownElement::Spoiler(Box::new(value))
+    }
+}
+
+impl From<OneLineCode> for MarkdownElement {
+    fn from(value: OneLineCode) -> Self {
+        MarkdownElement::OneLineCode(Box::new(value))
+    }
+}
+
+impl From<MultiLineCode> for MarkdownElement {
+    fn from(value: MultiLineCode) -> Self {
+        MarkdownElement::MultiLineCode(Box::new(value))
     }
 }
 
@@ -391,14 +391,6 @@ mod tests {
     }
 
     #[test]
-    fn test_element_from_plain() {
-        assert_eq!(
-            MarkdownElement::from(Plain::new("plain text")),
-            MarkdownElement::Plain(Box::new(Plain::new("plain text")))
-        );
-    }
-
-    #[test]
     fn test_styled_content() {
         let test_case = || {
             MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
@@ -431,42 +423,6 @@ mod tests {
     }
 
     #[test]
-    fn test_element_from_styled() {
-        let test_element_collection = || {
-            MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
-                "text",
-            )))])
-        };
-
-        assert_eq!(
-            MarkdownElement::from(ItalicsStar::new(test_element_collection())),
-            MarkdownElement::ItalicsStar(Box::new(ItalicsStar::new(test_element_collection())))
-        );
-        assert_eq!(
-            MarkdownElement::from(ItalicsUnderscore::new(test_element_collection())),
-            MarkdownElement::ItalicsUnderscore(Box::new(ItalicsUnderscore::new(
-                test_element_collection()
-            )))
-        );
-        assert_eq!(
-            MarkdownElement::from(Bold::new(test_element_collection())),
-            MarkdownElement::Bold(Box::new(Bold::new(test_element_collection())))
-        );
-        assert_eq!(
-            MarkdownElement::from(Underline::new(test_element_collection())),
-            MarkdownElement::Underline(Box::new(Underline::new(test_element_collection())))
-        );
-        assert_eq!(
-            MarkdownElement::from(Strikethrough::new(test_element_collection())),
-            MarkdownElement::Strikethrough(Box::new(Strikethrough::new(test_element_collection())))
-        );
-        assert_eq!(
-            MarkdownElement::from(Spoiler::new(test_element_collection())),
-            MarkdownElement::Spoiler(Box::new(Spoiler::new(test_element_collection())))
-        );
-    }
-
-    #[test]
     fn test_one_line_code_content() {
         assert_eq!(OneLineCode::new("one line code").content(), "one line code");
     }
@@ -476,14 +432,6 @@ mod tests {
         assert_eq!(
             OneLineCode::new("one line code").to_string(),
             "`one line code`"
-        );
-    }
-
-    #[test]
-    fn test_element_from_one_line_code() {
-        assert_eq!(
-            MarkdownElement::from(OneLineCode::new("one line code")),
-            MarkdownElement::OneLineCode(Box::new(OneLineCode::new("one line code")))
         );
     }
 
@@ -528,20 +476,6 @@ mod tests {
     }
 
     #[test]
-    fn test_element_from_multi_line_code() {
-        assert_eq!(
-            MarkdownElement::from(MultiLineCode::new(
-                "multi\nline\ncode\n",
-                Some("js".to_string())
-            )),
-            MarkdownElement::MultiLineCode(Box::new(MultiLineCode::new(
-                "multi\nline\ncode\n",
-                Some("js".to_string())
-            )))
-        );
-    }
-
-    #[test]
     fn test_block_quote_content() {
         let test_case = || {
             MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
@@ -563,6 +497,72 @@ mod tests {
         assert_eq!(
             BlockQuote::new(test_case()).to_string(),
             "> block quote\n> text"
+        );
+    }
+
+    #[test]
+    fn test_element_from_plain() {
+        assert_eq!(
+            MarkdownElement::from(Plain::new("plain text")),
+            MarkdownElement::Plain(Box::new(Plain::new("plain text")))
+        );
+    }
+
+    #[test]
+    fn test_element_from_styled() {
+        let test_element_collection = || {
+            MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
+                "text",
+            )))])
+        };
+
+        assert_eq!(
+            MarkdownElement::from(ItalicsStar::new(test_element_collection())),
+            MarkdownElement::ItalicsStar(Box::new(ItalicsStar::new(test_element_collection())))
+        );
+        assert_eq!(
+            MarkdownElement::from(ItalicsUnderscore::new(test_element_collection())),
+            MarkdownElement::ItalicsUnderscore(Box::new(ItalicsUnderscore::new(
+                test_element_collection()
+            )))
+        );
+        assert_eq!(
+            MarkdownElement::from(Bold::new(test_element_collection())),
+            MarkdownElement::Bold(Box::new(Bold::new(test_element_collection())))
+        );
+        assert_eq!(
+            MarkdownElement::from(Underline::new(test_element_collection())),
+            MarkdownElement::Underline(Box::new(Underline::new(test_element_collection())))
+        );
+        assert_eq!(
+            MarkdownElement::from(Strikethrough::new(test_element_collection())),
+            MarkdownElement::Strikethrough(Box::new(Strikethrough::new(test_element_collection())))
+        );
+        assert_eq!(
+            MarkdownElement::from(Spoiler::new(test_element_collection())),
+            MarkdownElement::Spoiler(Box::new(Spoiler::new(test_element_collection())))
+        );
+    }
+
+    #[test]
+    fn test_element_from_one_line_code() {
+        assert_eq!(
+            MarkdownElement::from(OneLineCode::new("one line code")),
+            MarkdownElement::OneLineCode(Box::new(OneLineCode::new("one line code")))
+        );
+    }
+
+    #[test]
+    fn test_element_from_multi_line_code() {
+        assert_eq!(
+            MarkdownElement::from(MultiLineCode::new(
+                "multi\nline\ncode\n",
+                Some("js".to_string())
+            )),
+            MarkdownElement::MultiLineCode(Box::new(MultiLineCode::new(
+                "multi\nline\ncode\n",
+                Some("js".to_string())
+            )))
         );
     }
 

@@ -72,24 +72,28 @@ fn main() {
 
 ## Features
 
-- Italics (`*italics*`, `_italics_`)
-- Bold (`**bold**`)
-- Underline (`__underline__`)
-- Strikethrough (`~~strikethrough~~`)
-- Spoiler (`||spoiler||`)
-- One line code (`` `one line code` ``)
-- Multi line code
-  ````
-  ```sh
-  echo "multi line"
-  echo "code"
-  ```
-  ````
-- Block Quote ([builder only](#limitations))
-  ```
-  > block quote
-  > some text
-  ```
+- Tested
+- Well documented
+- Minimal dependencies (only [nom](https://github.com/Geal/nom) and [derive_more](https://github.com/JelteF/derive_more))
+- Supports the following syntax:
+  - Italics (`*italics*`, `_italics_`)
+  - Bold (`**bold**`)
+  - Underline (`__underline__`)
+  - Strikethrough (`~~strikethrough~~`)
+  - Spoiler (`||spoiler||`)
+  - One line code (`` `one line code` ``)
+  - Multi line code
+    ````
+    ```sh
+    echo "multi line"
+    echo "code"
+    ```
+    ````
+  - Block Quote ([generator only](#parser-limitations))
+    ```
+    > block quote
+    > some text
+    ```
 
 ## Installation
 

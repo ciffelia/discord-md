@@ -10,16 +10,16 @@ use crate::ast::{
     MarkdownElementCollection, MultiLineCode, OneLineCode, Plain, Spoiler, Strikethrough,
     Underline,
 };
-use nom::character::complete::{alphanumeric1, newline};
-use nom::combinator::{opt, peek, rest};
-use nom::sequence::{pair, terminated};
 use nom::{
     branch::alt,
-    combinator::{map, map_parser},
+    bytes::complete::tag,
+    character::complete::{alphanumeric1, newline},
+    combinator::{map, map_parser, opt, peek, rest},
     multi::many0,
+    sequence::{delimited, pair, terminated},
     IResult,
 };
-use util::{rest1, take_before0, wrapped};
+use util::{rest1, take_before0, take_before1};
 
 /// Parses a markdown document.
 pub fn markdown_document(i: &str) -> IResult<&str, MarkdownDocument> {
@@ -66,7 +66,10 @@ fn plain(i: &str) -> IResult<&str, Plain> {
 /// Parses italics text wrapped in `*`.
 fn italics_star(i: &str) -> IResult<&str, ItalicsStar> {
     map(
-        map_parser(wrapped("*"), markdown_element_collection),
+        map_parser(
+            delimited(tag("*"), take_before1(tag("*")), tag("*")),
+            markdown_element_collection,
+        ),
         ItalicsStar::new,
     )(i)
 }
@@ -74,7 +77,10 @@ fn italics_star(i: &str) -> IResult<&str, ItalicsStar> {
 /// Parses italics text wrapped in `_`.
 fn italics_underscore(i: &str) -> IResult<&str, ItalicsUnderscore> {
     map(
-        map_parser(wrapped("_"), markdown_element_collection),
+        map_parser(
+            delimited(tag("_"), take_before1(tag("_")), tag("_")),
+            markdown_element_collection,
+        ),
         ItalicsUnderscore::new,
     )(i)
 }
@@ -82,7 +88,10 @@ fn italics_underscore(i: &str) -> IResult<&str, ItalicsUnderscore> {
 /// Parses bold text.
 fn bold(i: &str) -> IResult<&str, Bold> {
     map(
-        map_parser(wrapped("**"), markdown_element_collection),
+        map_parser(
+            delimited(tag("**"), take_before1(tag("**")), tag("**")),
+            markdown_element_collection,
+        ),
         Bold::new,
     )(i)
 }
@@ -90,7 +99,10 @@ fn bold(i: &str) -> IResult<&str, Bold> {
 /// Parses underline text.
 fn underline(i: &str) -> IResult<&str, Underline> {
     map(
-        map_parser(wrapped("__"), markdown_element_collection),
+        map_parser(
+            delimited(tag("__"), take_before1(tag("__")), tag("__")),
+            markdown_element_collection,
+        ),
         Underline::new,
     )(i)
 }
@@ -98,7 +110,10 @@ fn underline(i: &str) -> IResult<&str, Underline> {
 /// Parses strikethrough text.
 fn strikethrough(i: &str) -> IResult<&str, Strikethrough> {
     map(
-        map_parser(wrapped("~~"), markdown_element_collection),
+        map_parser(
+            delimited(tag("~~"), take_before1(tag("~~")), tag("~~")),
+            markdown_element_collection,
+        ),
         Strikethrough::new,
     )(i)
 }
@@ -106,21 +121,27 @@ fn strikethrough(i: &str) -> IResult<&str, Strikethrough> {
 /// Parses spoiler text.
 fn spoiler(i: &str) -> IResult<&str, Spoiler> {
     map(
-        map_parser(wrapped("||"), markdown_element_collection),
+        map_parser(
+            delimited(tag("||"), take_before1(tag("||")), tag("||")),
+            markdown_element_collection,
+        ),
         Spoiler::new,
     )(i)
 }
 
 /// Parses an inline code block.
 fn one_line_code(i: &str) -> IResult<&str, OneLineCode> {
-    map(wrapped("`"), OneLineCode::new)(i)
+    map(
+        delimited(tag("`"), take_before1(tag("`")), tag("`")),
+        OneLineCode::new,
+    )(i)
 }
 
 /// Parses a multiline code block.
 fn multi_line_code(i: &str) -> IResult<&str, MultiLineCode> {
     map(
         map_parser(
-            wrapped("```"),
+            delimited(tag("```"), take_before1(tag("```")), tag("```")),
             pair(opt(terminated(alphanumeric1, peek(newline))), rest),
         ),
         |(lang, content): (Option<&str>, &str)| {
@@ -151,6 +172,32 @@ mod tests {
                 MarkdownDocument::new(vec![Bold::new(vec![
                     Plain::new("hello ").into(),
                     ItalicsUnderscore::new(vec![Plain::new("world").into()]).into()
+                ])
+                .into()])
+            ))
+        );
+        // Note: `***italics* in bold**` works, but `***bold** in italics*` doesn't work.
+        // This is a known limitation.
+        assert_eq!(
+            markdown_document("***italics* in bold**"),
+            Ok((
+                "",
+                MarkdownDocument::new(vec![Bold::new(vec![
+                    ItalicsStar::new(vec![Plain::new("italics").into()]).into(),
+                    Plain::new(" in bold").into(),
+                ])
+                .into()])
+            ))
+        );
+        // Note: `___italics_ in underline__` works, but `___underline__ in italics_` doesn't work.
+        // This is a known limitation.
+        assert_eq!(
+            markdown_document("___italics_ in underline__"),
+            Ok((
+                "",
+                MarkdownDocument::new(vec![Underline::new(vec![
+                    ItalicsUnderscore::new(vec![Plain::new("italics").into()]).into(),
+                    Plain::new(" in underline").into(),
                 ])
                 .into()])
             ))
@@ -315,7 +362,7 @@ mod tests {
 
     #[test]
     fn test_italics_star_err() {
-        assert_eq!(italics_star("*text"), Err(parse_error("", ErrorKind::Tag)));
+        assert_eq!(italics_star("*text"), Err(parse_error("", ErrorKind::Eof)));
         assert_eq!(
             italics_star("text*"),
             Err(parse_error("text*", ErrorKind::Tag))
@@ -324,7 +371,7 @@ mod tests {
             italics_star("text"),
             Err(parse_error("text", ErrorKind::Tag))
         );
-        assert_eq!(italics_star("**"), Err(parse_error("*", ErrorKind::IsNot)));
+        assert_eq!(italics_star("**"), Err(parse_error("*", ErrorKind::Verify)));
     }
 
     #[test]
@@ -342,7 +389,7 @@ mod tests {
     fn test_italics_underscore_err() {
         assert_eq!(
             italics_underscore("_text"),
-            Err(parse_error("", ErrorKind::Tag))
+            Err(parse_error("", ErrorKind::Eof))
         );
         assert_eq!(
             italics_underscore("text_"),
@@ -354,7 +401,7 @@ mod tests {
         );
         assert_eq!(
             italics_underscore("__"),
-            Err(parse_error("_", ErrorKind::IsNot))
+            Err(parse_error("_", ErrorKind::Verify))
         );
     }
 
@@ -368,11 +415,11 @@ mod tests {
 
     #[test]
     fn test_bold_err() {
-        assert_eq!(bold("**text"), Err(parse_error("", ErrorKind::Tag)));
+        assert_eq!(bold("**text"), Err(parse_error("", ErrorKind::Eof)));
         assert_eq!(bold("text**"), Err(parse_error("text**", ErrorKind::Tag)));
         assert_eq!(bold("*text*"), Err(parse_error("*text*", ErrorKind::Tag)));
         assert_eq!(bold("text"), Err(parse_error("text", ErrorKind::Tag)));
-        assert_eq!(bold("****"), Err(parse_error("**", ErrorKind::IsNot)));
+        assert_eq!(bold("****"), Err(parse_error("**", ErrorKind::Verify)));
     }
 
     #[test]
@@ -385,7 +432,7 @@ mod tests {
 
     #[test]
     fn test_underline_err() {
-        assert_eq!(underline("__text"), Err(parse_error("", ErrorKind::Tag)));
+        assert_eq!(underline("__text"), Err(parse_error("", ErrorKind::Eof)));
         assert_eq!(
             underline("text__"),
             Err(parse_error("text__", ErrorKind::Tag))
@@ -395,7 +442,7 @@ mod tests {
             Err(parse_error("_text_", ErrorKind::Tag))
         );
         assert_eq!(underline("text"), Err(parse_error("text", ErrorKind::Tag)));
-        assert_eq!(underline("____"), Err(parse_error("__", ErrorKind::IsNot)));
+        assert_eq!(underline("____"), Err(parse_error("__", ErrorKind::Verify)));
     }
 
     #[test]
@@ -410,7 +457,7 @@ mod tests {
     fn test_strikethrough_err() {
         assert_eq!(
             strikethrough("~~text"),
-            Err(parse_error("", ErrorKind::Tag))
+            Err(parse_error("", ErrorKind::Eof))
         );
         assert_eq!(
             strikethrough("text~~"),
@@ -426,7 +473,7 @@ mod tests {
         );
         assert_eq!(
             strikethrough("~~~~"),
-            Err(parse_error("~~", ErrorKind::IsNot))
+            Err(parse_error("~~", ErrorKind::Verify))
         );
     }
 
@@ -440,7 +487,7 @@ mod tests {
 
     #[test]
     fn test_spoiler_err() {
-        assert_eq!(spoiler("||text"), Err(parse_error("", ErrorKind::Tag)));
+        assert_eq!(spoiler("||text"), Err(parse_error("", ErrorKind::Eof)));
         assert_eq!(
             spoiler("text||"),
             Err(parse_error("text||", ErrorKind::Tag))
@@ -450,7 +497,7 @@ mod tests {
             Err(parse_error("|text|", ErrorKind::Tag))
         );
         assert_eq!(spoiler("text"), Err(parse_error("text", ErrorKind::Tag)));
-        assert_eq!(spoiler("||||"), Err(parse_error("||", ErrorKind::IsNot)));
+        assert_eq!(spoiler("||||"), Err(parse_error("||", ErrorKind::Verify)));
     }
 
     #[test]
@@ -465,7 +512,7 @@ mod tests {
     fn test_one_line_code_err() {
         assert_eq!(
             one_line_code("`*text*"),
-            Err(parse_error("", ErrorKind::Tag))
+            Err(parse_error("", ErrorKind::Eof))
         );
         assert_eq!(
             one_line_code("*text*`"),
@@ -475,7 +522,10 @@ mod tests {
             one_line_code("*text*"),
             Err(parse_error("*text*", ErrorKind::Tag))
         );
-        assert_eq!(one_line_code("``"), Err(parse_error("`", ErrorKind::IsNot)));
+        assert_eq!(
+            one_line_code("``"),
+            Err(parse_error("`", ErrorKind::Verify))
+        );
     }
 
     #[test]
@@ -502,7 +552,7 @@ mod tests {
     fn test_multi_line_code_err() {
         assert_eq!(
             multi_line_code("```hello"),
-            Err(parse_error("", ErrorKind::Tag))
+            Err(parse_error("", ErrorKind::Eof))
         );
         assert_eq!(
             multi_line_code("hello```"),
@@ -514,7 +564,7 @@ mod tests {
         );
         assert_eq!(
             multi_line_code("``````"),
-            Err(parse_error("```", ErrorKind::IsNot))
+            Err(parse_error("```", ErrorKind::Verify))
         );
     }
 
@@ -540,7 +590,7 @@ mod tests {
     fn test_multi_line_code_with_lang_err() {
         assert_eq!(
             multi_line_code("```js\nhello"),
-            Err(parse_error("", ErrorKind::Tag))
+            Err(parse_error("", ErrorKind::Eof))
         );
     }
 }

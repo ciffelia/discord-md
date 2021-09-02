@@ -1,9 +1,9 @@
 //! Useful parser functions written with [`nom`]
 
 use nom::{
-    bytes::complete::{is_not, tag, take_while1},
+    bytes::complete::{is_not, tag},
     character::complete::anychar,
-    combinator::{peek, recognize},
+    combinator::{peek, recognize, rest, verify},
     error::Error,
     lib::std::ops::{RangeFrom, RangeTo},
     multi::many_till,
@@ -14,9 +14,9 @@ use nom::{
 
 /// Return the remaining input.
 ///
-/// This parser is similar to [`nom::combinator::rest`], but returns `Err(Err::Error((_, ErrorKind::TakeWhile1)))` if the input is empty.
+/// This parser is similar to [`nom::combinator::rest`], but returns `Err(Err::Error((_, ErrorKind::Verify)))` if the input is empty.
 pub fn rest1(s: &str) -> IResult<&str, &str> {
-    take_while1(|_| true)(s)
+    verify(rest, |x: &str| !x.is_empty())(s)
 }
 
 /// Gets an object sandwiched in a pattern.
@@ -56,7 +56,7 @@ mod tests {
     #[test]
     fn test_rest1() {
         assert_eq!(rest1("hello"), Ok(("", "hello")));
-        assert_eq!(rest1(""), Err(parse_error("", ErrorKind::TakeWhile1)));
+        assert_eq!(rest1(""), Err(parse_error("", ErrorKind::Verify)));
     }
 
     #[test]

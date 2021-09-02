@@ -272,7 +272,7 @@ mod tests {
     fn test_markdown_element_err() {
         assert_eq!(
             markdown_element(""),
-            Err(parse_error("", ErrorKind::TakeWhile1))
+            Err(parse_error("", ErrorKind::Verify))
         );
     }
 
@@ -302,7 +302,7 @@ mod tests {
 
     #[test]
     fn test_plain_err() {
-        assert_eq!(plain(""), Err(parse_error("", ErrorKind::TakeWhile1)));
+        assert_eq!(plain(""), Err(parse_error("", ErrorKind::Verify)));
     }
 
     #[test]

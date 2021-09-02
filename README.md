@@ -10,18 +10,30 @@ use discord_md::ast::*;
 use discord_md::parse;
 
 fn main() {
-  let message = "You can write *italics text*, ||spoilers||, `*inline code*`, and more!";
+  let message = "You can write *italics text*, `*inline code*`, and more!";
 
   assert_eq!(
-    parse(message_1),
+    parse(message),
     MarkdownDocument::new(vec![
-      Plain::new("You can write ").into(),
-      ItalicsStar::new(vec![Plain::new("italics text").into()]).into(),
-      Plain::new(", ").into(),
-      Spoiler::new(vec![Plain::new("spoilers").into()]).into(),
-      Plain::new(", ").into(),
-      OneLineCode::new("*inline code*").into(),
-      Plain::new(", and more!").into(),
+      MarkdownElement::Plain(Box::new(
+        Plain::new("You can write ")
+      )),
+      MarkdownElement::ItalicsStar(Box::new(
+        ItalicsStar::new(vec![
+          MarkdownElement::Plain(Box::new(
+            Plain::new("italics text")
+          ))
+        ])
+      )),
+      MarkdownElement::Plain(Box::new(
+        Plain::new(", ")
+      )),
+      MarkdownElement::OneLineCode(Box::new(
+        OneLineCode::new("*inline code*")
+      )),
+      MarkdownElement::Plain(Box::new(
+        Plain::new(", and more!")
+      )),
     ])
   );
 }

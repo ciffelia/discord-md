@@ -40,6 +40,23 @@ jobs:
         with:
           command: test
 
+  docs:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Generate documentation
+        uses: actions-rs/cargo@v1
+        with:
+          command: doc --no-deps --document-private-items --all-features
+
   format:
     runs-on: ubuntu-20.04
     steps:

@@ -35,7 +35,7 @@ where
 /// Returns the *shortest* input slice until it matches a parser.
 ///
 /// Returns `Err(Err::Error((_, ErrorKind::Eof)))` if the input doesn't match the parser.
-pub fn take_before<'a, FOutput, F>(f: F) -> impl FnMut(&'a str) -> IResult<&'a str, &'a str>
+pub fn take_before0<'a, FOutput, F>(f: F) -> impl FnMut(&'a str) -> IResult<&'a str, &'a str>
 where
     F: Parser<&'a str, FOutput, Error<&'a str>>,
 {
@@ -67,8 +67,8 @@ mod tests {
     }
 
     #[test]
-    fn test_take_before() {
-        let mut parser = take_before(tag("end"));
+    fn test_take_before0() {
+        let mut parser = take_before0(tag("end"));
 
         assert_eq!(parser("123end456"), Ok(("end456", "123")));
         assert_eq!(parser("end456"), Ok(("end456", "")));

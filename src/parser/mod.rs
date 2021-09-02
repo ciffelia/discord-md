@@ -19,7 +19,7 @@ use nom::{
     multi::many0,
     IResult,
 };
-use util::{rest1, take_before, wrapped};
+use util::{rest1, take_before0, wrapped};
 
 /// Parses a markdown document.
 pub fn markdown_document(i: &str) -> IResult<&str, MarkdownDocument> {
@@ -58,7 +58,7 @@ fn markdown_element_not_plain(i: &str) -> IResult<&str, MarkdownElement> {
 /// Parses plain text.
 fn plain(i: &str) -> IResult<&str, Plain> {
     map(
-        alt((take_before(markdown_element_not_plain), rest1)),
+        alt((take_before0(markdown_element_not_plain), rest1)),
         Plain::new,
     )(i)
 }

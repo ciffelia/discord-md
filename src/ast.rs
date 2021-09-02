@@ -358,8 +358,10 @@ mod tests {
     fn test_document_to_string() {
         assert_eq!(
             MarkdownDocument::new(MarkdownElementCollection::new(vec![
-                Bold::new(vec![Plain::new("bold").into()]).into(),
-                Plain::new(" plain").into()
+                MarkdownElement::Bold(Box::new(Bold::new(MarkdownElementCollection::new(vec![
+                    MarkdownElement::Plain(Box::new(Plain::new("bold"))),
+                ])))),
+                MarkdownElement::Plain(Box::new(Plain::new(" plain"))),
             ]))
             .to_string(),
             "**bold** plain"
@@ -379,12 +381,17 @@ mod tests {
     fn test_element_collection_to_string() {
         assert_eq!(
             MarkdownElementCollection::new(vec![
-                Bold::new(vec![Plain::new("bold").into()]).into(),
-                Plain::new(" plain ").into(),
-                Underline::new(vec![
-                    Bold::new(vec![Plain::new("underline bold").into()]).into()
-                ])
-                .into(),
+                MarkdownElement::Bold(Box::new(Bold::new(MarkdownElementCollection::new(vec![
+                    MarkdownElement::Plain(Box::new(Plain::new("bold"))),
+                ])))),
+                MarkdownElement::Plain(Box::new(Plain::new(" plain "))),
+                MarkdownElement::Underline(Box::new(Underline::new(
+                    MarkdownElementCollection::new(vec![MarkdownElement::Bold(Box::new(
+                        Bold::new(MarkdownElementCollection::new(vec![
+                            MarkdownElement::Plain(Box::new(Plain::new("underline bold"))),
+                        ]))
+                    ))])
+                ))),
             ])
             .to_string(),
             "**bold** plain __**underline bold**__"

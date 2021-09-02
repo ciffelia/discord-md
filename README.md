@@ -62,4 +62,4 @@ fn main() {
 
 # Limitations
 
-- Parser cannot parse block quote.
+- Parser cannot parse block quote. `> ` are treated as plain text.

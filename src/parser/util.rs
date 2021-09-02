@@ -42,6 +42,21 @@ where
     recognize(many_till(anychar, peek(f)))
 }
 
+/// Returns the *shortest* input slice until it matches a parser.
+///
+/// This parser is similar to [`take_before0`], but must return at least one character.
+///
+/// Returns `Err(Err::Error((_, ErrorKind::Eof)))` if the input doesn't match the parser.
+///
+/// Returns `Err(Err::Error((_, ErrorKind::Verify)))` if the input itself matches the parser
+/// (i.e. this parser cannot return any characters).
+pub fn take_before1<'a, FOutput, F>(f: F) -> impl FnMut(&'a str) -> IResult<&'a str, &'a str>
+where
+    F: Parser<&'a str, FOutput, Error<&'a str>>,
+{
+    verify(take_before0(f), |x: &str| !x.is_empty())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -72,6 +87,19 @@ mod tests {
 
         assert_eq!(parser("123end456"), Ok(("end456", "123")));
         assert_eq!(parser("end456"), Ok(("end456", "")));
+        assert_eq!(parser("123"), Err(parse_error("", ErrorKind::Eof)));
+        assert_eq!(parser(""), Err(parse_error("", ErrorKind::Eof)));
+    }
+
+    #[test]
+    fn test_take_before1() {
+        let mut parser = take_before1(tag("end"));
+
+        assert_eq!(parser("123end456"), Ok(("end456", "123")));
+        assert_eq!(
+            parser("end456"),
+            Err(parse_error("end456", ErrorKind::Verify))
+        );
         assert_eq!(parser("123"), Err(parse_error("", ErrorKind::Eof)));
         assert_eq!(parser(""), Err(parse_error("", ErrorKind::Eof)));
     }

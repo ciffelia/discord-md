@@ -6,7 +6,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! discord-md = "0.1.0"
+//! discord-md = { git = "https://github.com/ciffelia/discord-md" }
 //! ```
 //!
 //! # Parsing
@@ -107,6 +107,7 @@ mod parser;
 use ast::MarkdownDocument;
 
 /// Parses a markdown document and returns AST.
+///
 /// ## Example
 ///
 /// ```

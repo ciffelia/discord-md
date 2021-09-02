@@ -50,13 +50,13 @@ jobs:
         with:
           toolchain: stable
           profile: minimal
-          components: rust-docs
           override: true
 
       - name: Generate documentation
         uses: actions-rs/cargo@v1
         with:
-          command: doc --no-deps --document-private-items --all-features
+          command: doc
+          args: --no-deps --document-private-items --all-features
 
   format:
     runs-on: ubuntu-20.04

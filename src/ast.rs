@@ -259,7 +259,7 @@ pub struct MultiLineCode {
 }
 
 impl MultiLineCode {
-    // 引数の型を Option<impl Into<String>> にすると、Noneを渡せない
+    // language の型を Option<impl Into<String>> にしたいが、そうすると None を渡せなくなる
     // never type の実装を待つ必要がありそう
     // https://stackoverflow.com/q/42141129
     pub fn new(content: impl Into<String>, language: Option<String>) -> Self {

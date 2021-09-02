@@ -102,6 +102,7 @@
 //! ```
 
 pub mod ast;
+pub mod builder;
 mod parser;
 
 use ast::MarkdownDocument;

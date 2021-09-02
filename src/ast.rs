@@ -262,6 +262,12 @@ impl fmt::Display for BlockQuote {
     }
 }
 
+impl From<MarkdownElement> for MarkdownElementCollection {
+    fn from(value: MarkdownElement) -> Self {
+        MarkdownElementCollection::new(vec![value])
+    }
+}
+
 impl From<Plain> for MarkdownElement {
     fn from(value: Plain) -> Self {
         MarkdownElement::Plain(Box::new(value))
@@ -497,6 +503,18 @@ mod tests {
         assert_eq!(
             BlockQuote::new(test_case()).to_string(),
             "> block quote\n> text"
+        );
+    }
+
+    #[test]
+    fn test_element_collection_from_element() {
+        assert_eq!(
+            MarkdownElementCollection::from(MarkdownElement::Plain(Box::new(Plain::new(
+                "plain text"
+            )))),
+            MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
+                "plain text"
+            )))]),
         );
     }
 

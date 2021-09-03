@@ -147,6 +147,7 @@
 
 pub mod ast;
 pub mod builder;
+pub mod generate;
 mod parser;
 
 use ast::MarkdownDocument;

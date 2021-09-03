@@ -1,4 +1,4 @@
-use discord_md::ast::MarkdownToString;
+use discord_md::generate::MarkdownToString;
 use discord_md::parse;
 
 #[test]

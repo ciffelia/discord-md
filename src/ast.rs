@@ -29,6 +29,7 @@
 //! assert_eq!(ast.to_string(), "**bold** text");
 //! ```
 
+use crate::generate::MarkdownToString;
 use derive_more::{Display, From, Into, IntoIterator};
 
 /// A markdown document. The root of AST.
@@ -412,208 +413,6 @@ impl BlockQuote {
     }
 }
 
-/// A trait for converting a markdown component to a String.
-pub trait MarkdownToString {
-    /// Returns the content of the component as markdown styled text.
-    fn to_markdown_string(&self) -> String;
-
-    /// Returns the content of the component as plain text.
-    fn to_plain_string(&self) -> String;
-}
-
-impl MarkdownToString for MarkdownDocument {
-    /// Returns the content of the document as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        self.content.to_markdown_string()
-    }
-
-    /// Returns the content of the document as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content.to_plain_string()
-    }
-}
-
-impl MarkdownToString for MarkdownElementCollection {
-    /// Returns the content of the collection as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        self.0
-            .iter()
-            .map(|c| c.to_markdown_string())
-            .collect::<String>()
-    }
-
-    /// Returns the content of the collection as plain text.
-    fn to_plain_string(&self) -> String {
-        self.0
-            .iter()
-            .map(|c| c.to_plain_string())
-            .collect::<String>()
-    }
-}
-
-impl MarkdownToString for MarkdownElement {
-    /// Returns the content of the element as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        match self {
-            MarkdownElement::Plain(x) => x.to_markdown_string(),
-            MarkdownElement::ItalicsStar(x) => x.to_markdown_string(),
-            MarkdownElement::ItalicsUnderscore(x) => x.to_markdown_string(),
-            MarkdownElement::Bold(x) => x.to_markdown_string(),
-            MarkdownElement::Underline(x) => x.to_markdown_string(),
-            MarkdownElement::Strikethrough(x) => x.to_markdown_string(),
-            MarkdownElement::Spoiler(x) => x.to_markdown_string(),
-            MarkdownElement::OneLineCode(x) => x.to_markdown_string(),
-            MarkdownElement::MultiLineCode(x) => x.to_markdown_string(),
-            MarkdownElement::BlockQuote(x) => x.to_markdown_string(),
-        }
-    }
-
-    /// Returns the content of the element as plain text.
-    fn to_plain_string(&self) -> String {
-        match self {
-            MarkdownElement::Plain(x) => x.to_plain_string(),
-            MarkdownElement::ItalicsStar(x) => x.to_plain_string(),
-            MarkdownElement::ItalicsUnderscore(x) => x.to_plain_string(),
-            MarkdownElement::Bold(x) => x.to_plain_string(),
-            MarkdownElement::Underline(x) => x.to_plain_string(),
-            MarkdownElement::Strikethrough(x) => x.to_plain_string(),
-            MarkdownElement::Spoiler(x) => x.to_plain_string(),
-            MarkdownElement::OneLineCode(x) => x.to_plain_string(),
-            MarkdownElement::MultiLineCode(x) => x.to_plain_string(),
-            MarkdownElement::BlockQuote(x) => x.to_plain_string(),
-        }
-    }
-}
-
-impl MarkdownToString for Plain {
-    /// Returns the content of the plain text.
-    fn to_markdown_string(&self) -> String {
-        self.content.clone()
-    }
-
-    /// Returns the content of the plain text.
-    fn to_plain_string(&self) -> String {
-        self.content.clone()
-    }
-}
-
-impl MarkdownToString for ItalicsStar {
-    /// Returns the content of italics text as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!("*{}*", self.content.to_markdown_string())
-    }
-
-    /// Returns the content of italics text as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content.to_plain_string()
-    }
-}
-
-impl MarkdownToString for ItalicsUnderscore {
-    /// Returns the content of italics text as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!("_{}_", self.content.to_markdown_string())
-    }
-
-    /// Returns the content of italics text as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content.to_plain_string()
-    }
-}
-
-impl MarkdownToString for Bold {
-    /// Returns the content of bold text as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!("**{}**", self.content.to_markdown_string())
-    }
-
-    /// Returns the content of bold text as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content.to_plain_string()
-    }
-}
-
-impl MarkdownToString for Underline {
-    /// Returns the content of underline text as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!("__{}__", self.content.to_markdown_string())
-    }
-
-    /// Returns the content of underline text as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content.to_plain_string()
-    }
-}
-
-impl MarkdownToString for Strikethrough {
-    /// Returns the content of strikethrough text as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!("~~{}~~", self.content.to_markdown_string())
-    }
-
-    /// Returns the content of strikethrough text as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content.to_plain_string()
-    }
-}
-
-impl MarkdownToString for Spoiler {
-    /// Returns the content of spoiler text as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!("||{}||", self.content.to_markdown_string())
-    }
-
-    /// Returns the content of spoiler text as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content.to_plain_string()
-    }
-}
-
-impl MarkdownToString for OneLineCode {
-    /// Returns the content of the inline code block as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!("`{}`", self.content)
-    }
-
-    /// Returns the content of the inline code block as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content.clone()
-    }
-}
-
-impl MarkdownToString for MultiLineCode {
-    /// Returns the content of the multiline code block as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!(
-            "```{}{}```",
-            self.language.as_deref().unwrap_or(""),
-            self.content
-        )
-    }
-
-    /// Returns the content of the multiline code block as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content.clone()
-    }
-}
-
-impl MarkdownToString for BlockQuote {
-    /// Returns the content of the block quote as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        self.content
-            .to_markdown_string()
-            .split('\n')
-            .map(|line| format!("> {}", line))
-            .collect::<Vec<_>>()
-            .join("\n")
-    }
-
-    /// Returns the content of the block quote as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content.to_plain_string()
-    }
-}
-
 impl From<Plain> for MarkdownElement {
     fn from(value: Plain) -> Self {
         MarkdownElement::Plain(Box::new(value))
@@ -825,8 +624,6 @@ mod tests {
         ]));
 
         assert_eq!(ast.to_string(), "**bold** plain");
-        assert_eq!(ast.to_markdown_string(), "**bold** plain");
-        assert_eq!(ast.to_plain_string(), "bold plain");
     }
 
     #[test]
@@ -846,80 +643,41 @@ mod tests {
         ]);
 
         assert_eq!(ast.to_string(), "**bold** plain __**underline bold**__");
-        assert_eq!(
-            ast.to_markdown_string(),
-            "**bold** plain __**underline bold**__"
-        );
-        assert_eq!(ast.to_plain_string(), "bold plain underline bold");
     }
 
     #[test]
     fn test_plain_to_string() {
-        let ast = Plain::new("plain text");
-
-        assert_eq!(ast.to_string(), "plain text");
-        assert_eq!(ast.to_markdown_string(), "plain text");
-        assert_eq!(ast.to_plain_string(), "plain text");
+        assert_eq!(Plain::new("plain text").to_string(), "plain text");
     }
 
     #[test]
     fn test_italics_star_to_string() {
         assert_eq!(ItalicsStar::new(example_text()).to_string(), "*text*");
-        assert_eq!(
-            ItalicsStar::new(example_text()).to_markdown_string(),
-            "*text*"
-        );
-        assert_eq!(ItalicsStar::new(example_text()).to_plain_string(), "text");
     }
 
     #[test]
     fn test_italics_underscore_to_string() {
         assert_eq!(ItalicsUnderscore::new(example_text()).to_string(), "_text_");
-        assert_eq!(
-            ItalicsUnderscore::new(example_text()).to_markdown_string(),
-            "_text_"
-        );
-        assert_eq!(
-            ItalicsUnderscore::new(example_text()).to_plain_string(),
-            "text"
-        );
     }
 
     #[test]
     fn test_bold_to_string() {
         assert_eq!(Bold::new(example_text()).to_string(), "**text**");
-        assert_eq!(Bold::new(example_text()).to_markdown_string(), "**text**");
-        assert_eq!(Bold::new(example_text()).to_plain_string(), "text");
     }
 
     #[test]
     fn test_underline_to_string() {
         assert_eq!(Underline::new(example_text()).to_string(), "__text__");
-        assert_eq!(
-            Underline::new(example_text()).to_markdown_string(),
-            "__text__"
-        );
-        assert_eq!(Underline::new(example_text()).to_plain_string(), "text");
     }
 
     #[test]
     fn test_strikethrough_to_string() {
         assert_eq!(Strikethrough::new(example_text()).to_string(), "~~text~~");
-        assert_eq!(
-            Strikethrough::new(example_text()).to_markdown_string(),
-            "~~text~~"
-        );
-        assert_eq!(Strikethrough::new(example_text()).to_plain_string(), "text");
     }
 
     #[test]
     fn test_spoiler_to_string() {
         assert_eq!(Spoiler::new(example_text()).to_string(), "||text||");
-        assert_eq!(
-            Spoiler::new(example_text()).to_markdown_string(),
-            "||text||"
-        );
-        assert_eq!(Spoiler::new(example_text()).to_plain_string(), "text");
     }
 
     #[test]

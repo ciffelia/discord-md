@@ -1,5 +1,6 @@
-use discord_md::ast::{MarkdownDocument, MarkdownToString};
+use discord_md::ast::MarkdownDocument;
 use discord_md::builder::*;
+use discord_md::generate::MarkdownToString;
 use discord_md::parse;
 
 #[test]

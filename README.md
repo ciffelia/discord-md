@@ -1,7 +1,7 @@
 # discord-md
 
 [![CI Status](https://github.com/ciffelia/discord-md/workflows/CI/badge.svg?branch=main)](https://github.com/ciffelia/discord-md/actions?query=workflow%3ACI+branch%3Amain)
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+[![MIT or Apache 2.0 Licenses](https://img.shields.io/badge/license-MIT%20or%20Apache%202.0-blue)](#license)
 
 Parser and generator for Discord's markdown, written in Rust
 
@@ -120,4 +120,17 @@ The following is the list of known limitations.
 
 ## License
 
-[MIT License](LICENSE)
+Licensed under either of
+
+* Apache License, Version 2.0
+  ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+* MIT license
+  ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+at your option.
+
+## Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
+dual licensed as above, without any additional terms or conditions.

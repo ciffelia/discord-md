@@ -2,6 +2,12 @@
 name = "discord-md"
 version = "0.1.0"
 edition = "2018"
+description = "Parser and generator for Discord's markdown"
+repository = "https://github.com/ciffelia/discord-md"
+license = "MIT"
+keywords = ["discord", "markdown", "parser", "generator"]
+categories = ["parser-implementations"]
+exclude = ["/.github", "/.gitignore"]
 
 [dependencies]
 nom = "7.0.0"

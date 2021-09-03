@@ -62,7 +62,7 @@ impl MarkdownDocument {
         }
     }
 
-    /// Returns the content of markdown document.
+    /// Returns the content of the markdown document.
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }

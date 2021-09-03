@@ -49,7 +49,7 @@ use derive_more::{Display, From, Into, IntoIterator};
 ///
 /// assert_eq!(ast.to_string(), "**bold text**");
 /// ```
-#[derive(Debug, Eq, PartialEq, Display)]
+#[derive(Debug, Eq, PartialEq, Hash, Default, Display)]
 #[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct MarkdownDocument {
     content: MarkdownElementCollection,
@@ -70,7 +70,7 @@ impl MarkdownDocument {
 }
 
 /// A collection of [`MarkdownElement`].
-#[derive(Debug, Eq, PartialEq, From, Into, IntoIterator, Display)]
+#[derive(Debug, Eq, PartialEq, Hash, Default, From, Into, IntoIterator, Display)]
 #[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct MarkdownElementCollection(Vec<MarkdownElement>);
 
@@ -111,7 +111,7 @@ impl From<&String> for MarkdownElementCollection {
 }
 
 /// A markdown element.
-#[derive(Debug, Eq, PartialEq, Display)]
+#[derive(Debug, Eq, PartialEq, Hash, Display)]
 pub enum MarkdownElement {
     /// Plain text.
     Plain(Box<Plain>),
@@ -149,7 +149,7 @@ pub enum MarkdownElement {
 /// # Example markdown text
 ///
 /// `plain text` (plain text)
-#[derive(Debug, Eq, PartialEq, Display)]
+#[derive(Debug, Eq, PartialEq, Hash, Display)]
 #[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct Plain {
     content: String,
@@ -174,7 +174,7 @@ impl Plain {
 /// # Example markdown text
 ///
 /// `*italics text*` (*italics text*)
-#[derive(Debug, Eq, PartialEq, Display)]
+#[derive(Debug, Eq, PartialEq, Hash, Display)]
 #[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct ItalicsStar {
     content: MarkdownElementCollection,
@@ -199,7 +199,7 @@ impl ItalicsStar {
 /// # Example markdown text
 ///
 /// `_italics text_` (_italics text_)
-#[derive(Debug, Eq, PartialEq, Display)]
+#[derive(Debug, Eq, PartialEq, Hash, Display)]
 #[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct ItalicsUnderscore {
     content: MarkdownElementCollection,
@@ -224,7 +224,7 @@ impl ItalicsUnderscore {
 /// # Example markdown text
 ///
 /// `**bold text**` (**bold text**)
-#[derive(Debug, Eq, PartialEq, Display)]
+#[derive(Debug, Eq, PartialEq, Hash, Display)]
 #[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct Bold {
     content: MarkdownElementCollection,
@@ -249,7 +249,7 @@ impl Bold {
 /// # Example markdown text
 ///
 /// `__underline text__`
-#[derive(Debug, Eq, PartialEq, Display)]
+#[derive(Debug, Eq, PartialEq, Hash, Display)]
 #[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct Underline {
     content: MarkdownElementCollection,
@@ -274,7 +274,7 @@ impl Underline {
 /// # Example markdown text
 ///
 /// `~~strikethrough text~~` (~~strikethrough text~~)
-#[derive(Debug, Eq, PartialEq, Display)]
+#[derive(Debug, Eq, PartialEq, Hash, Display)]
 #[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct Strikethrough {
     content: MarkdownElementCollection,
@@ -299,7 +299,7 @@ impl Strikethrough {
 /// # Example markdown text
 ///
 /// `||spoiler text||`
-#[derive(Debug, Eq, PartialEq, Display)]
+#[derive(Debug, Eq, PartialEq, Hash, Display)]
 #[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct Spoiler {
     content: MarkdownElementCollection,
@@ -324,7 +324,7 @@ impl Spoiler {
 /// # Example markdown text
 ///
 /// `` `let foo = "bar";` `` (`let foo = "bar";`)
-#[derive(Debug, Eq, PartialEq, Display)]
+#[derive(Debug, Eq, PartialEq, Hash, Display)]
 #[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct OneLineCode {
     content: String,
@@ -355,7 +355,7 @@ impl OneLineCode {
 /// </p>
 /// ```
 /// ````
-#[derive(Debug, Eq, PartialEq, Display)]
+#[derive(Debug, Eq, PartialEq, Hash, Display)]
 #[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct MultiLineCode {
     content: String,
@@ -393,7 +393,7 @@ impl MultiLineCode {
 /// > this is
 /// > block quote
 /// ```
-#[derive(Debug, Eq, PartialEq, Display)]
+#[derive(Debug, Eq, PartialEq, Hash, Display)]
 #[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct BlockQuote {
     content: MarkdownElementCollection,

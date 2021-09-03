@@ -6,7 +6,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! discord-md = { git = "https://github.com/ciffelia/discord-md" }
+//! discord-md = "1.0.0"
 //! ```
 //!
 //! # Parsing

@@ -1,6 +1,6 @@
 [package]
 name = "discord-md"
-version = "0.1.0"
+version = "1.0.0-rc.1"
 edition = "2018"
 description = "Parser and generator for Discord's markdown"
 repository = "https://github.com/ciffelia/discord-md"

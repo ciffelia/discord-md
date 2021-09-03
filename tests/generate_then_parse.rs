@@ -1,4 +1,4 @@
-use discord_md::ast::MarkdownDocument;
+use discord_md::ast::{MarkdownDocument, MarkdownToString};
 use discord_md::builder::*;
 use discord_md::parse;
 
@@ -19,5 +19,5 @@ fn test_generate_then_parse() {
         multi_line_code("\nsome\ncode", None),
     ]);
 
-    assert_eq!(parse(&ast.to_string()), ast);
+    assert_eq!(parse(&ast.to_markdown_string()), ast);
 }

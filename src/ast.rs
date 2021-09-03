@@ -50,6 +50,7 @@ use std::fmt;
 /// assert_eq!(ast.to_string(), "**bold text**");
 /// ```
 #[derive(Debug, Eq, PartialEq, Display)]
+#[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct MarkdownDocument {
     content: MarkdownElementCollection,
 }
@@ -66,15 +67,11 @@ impl MarkdownDocument {
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
-
-    /// Returns the content of the markdown document as plain text.
-    pub fn to_plain_text(&self) -> String {
-        self.content.to_plain_string()
-    }
 }
 
 /// A collection of [`MarkdownElement`].
-#[derive(Debug, Eq, PartialEq, From, Into, IntoIterator)]
+#[derive(Debug, Eq, PartialEq, From, Into, IntoIterator, Display)]
+#[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct MarkdownElementCollection(Vec<MarkdownElement>);
 
 impl MarkdownElementCollection {
@@ -86,24 +83,6 @@ impl MarkdownElementCollection {
     /// Returns the collection of markdown element in [`Vec`].
     pub fn get(&self) -> &Vec<MarkdownElement> {
         &self.0
-    }
-
-    /// Returns the content of the collection as plain text.
-    pub fn to_plain_string(&self) -> String {
-        self.0
-            .iter()
-            .map(|c| c.to_plain_string())
-            .collect::<String>()
-    }
-}
-
-impl fmt::Display for MarkdownElementCollection {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            self.0.iter().map(|c| c.to_string()).collect::<String>()
-        )
     }
 }
 
@@ -165,30 +144,13 @@ pub enum MarkdownElement {
     BlockQuote(Box<BlockQuote>),
 }
 
-impl MarkdownElement {
-    /// Returns the content of the element as plain text.
-    pub fn to_plain_string(&self) -> String {
-        match self {
-            MarkdownElement::Plain(x) => x.content().to_string(),
-            MarkdownElement::ItalicsStar(x) => x.to_plain_text(),
-            MarkdownElement::ItalicsUnderscore(x) => x.to_plain_text(),
-            MarkdownElement::Bold(x) => x.to_plain_text(),
-            MarkdownElement::Underline(x) => x.to_plain_text(),
-            MarkdownElement::Strikethrough(x) => x.to_plain_text(),
-            MarkdownElement::Spoiler(x) => x.to_plain_text(),
-            MarkdownElement::OneLineCode(x) => x.content().to_string(),
-            MarkdownElement::MultiLineCode(x) => x.content().to_string(),
-            MarkdownElement::BlockQuote(x) => x.to_plain_text(),
-        }
-    }
-}
-
 /// Plain text.
 ///
 /// # Example markdown text
 ///
 /// `plain text` (plain text)
 #[derive(Debug, Eq, PartialEq, Display)]
+#[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct Plain {
     content: String,
 }
@@ -213,7 +175,7 @@ impl Plain {
 ///
 /// `*italics text*` (*italics text*)
 #[derive(Debug, Eq, PartialEq, Display)]
-#[display(fmt = "*{}*", content)]
+#[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct ItalicsStar {
     content: MarkdownElementCollection,
 }
@@ -230,11 +192,6 @@ impl ItalicsStar {
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
-
-    /// Returns the content of italics text as plain text.
-    pub fn to_plain_text(&self) -> String {
-        self.content.to_plain_string()
-    }
 }
 
 /// Italics text, wrapped in `_`.
@@ -243,7 +200,7 @@ impl ItalicsStar {
 ///
 /// `_italics text_` (_italics text_)
 #[derive(Debug, Eq, PartialEq, Display)]
-#[display(fmt = "_{}_", content)]
+#[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct ItalicsUnderscore {
     content: MarkdownElementCollection,
 }
@@ -260,11 +217,6 @@ impl ItalicsUnderscore {
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
-
-    /// Returns the content of italics text as plain text.
-    pub fn to_plain_text(&self) -> String {
-        self.content.to_plain_string()
-    }
 }
 
 /// Bold text, wrapped in `**`.
@@ -273,7 +225,7 @@ impl ItalicsUnderscore {
 ///
 /// `**bold text**` (**bold text**)
 #[derive(Debug, Eq, PartialEq, Display)]
-#[display(fmt = "**{}**", content)]
+#[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct Bold {
     content: MarkdownElementCollection,
 }
@@ -290,11 +242,6 @@ impl Bold {
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
-
-    /// Returns the content of bold text as plain text.
-    pub fn to_plain_text(&self) -> String {
-        self.content.to_plain_string()
-    }
 }
 
 /// Underline text, wrapped in `__`.
@@ -303,7 +250,7 @@ impl Bold {
 ///
 /// `__underline text__`
 #[derive(Debug, Eq, PartialEq, Display)]
-#[display(fmt = "__{}__", content)]
+#[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct Underline {
     content: MarkdownElementCollection,
 }
@@ -320,11 +267,6 @@ impl Underline {
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
-
-    /// Returns the content of bold text as plain text.
-    pub fn to_plain_text(&self) -> String {
-        self.content.to_plain_string()
-    }
 }
 
 /// Strikethrough text, wrapped in `~~`.
@@ -333,7 +275,7 @@ impl Underline {
 ///
 /// `~~strikethrough text~~` (~~strikethrough text~~)
 #[derive(Debug, Eq, PartialEq, Display)]
-#[display(fmt = "~~{}~~", content)]
+#[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct Strikethrough {
     content: MarkdownElementCollection,
 }
@@ -350,11 +292,6 @@ impl Strikethrough {
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
-
-    /// Returns the content of strikethrough text as plain text.
-    pub fn to_plain_text(&self) -> String {
-        self.content.to_plain_string()
-    }
 }
 
 /// Spoiler text, wrapped in `||`.
@@ -363,7 +300,7 @@ impl Strikethrough {
 ///
 /// `||spoiler text||`
 #[derive(Debug, Eq, PartialEq, Display)]
-#[display(fmt = "||{}||", content)]
+#[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct Spoiler {
     content: MarkdownElementCollection,
 }
@@ -380,11 +317,6 @@ impl Spoiler {
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
-
-    /// Returns the content of spoiler text as plain text.
-    pub fn to_plain_text(&self) -> String {
-        self.content.to_plain_string()
-    }
 }
 
 /// Inline code block, wrapped in `` ` ``.
@@ -393,7 +325,7 @@ impl Spoiler {
 ///
 /// `` `let foo = "bar";` `` (`let foo = "bar";`)
 #[derive(Debug, Eq, PartialEq, Display)]
-#[display(fmt = "`{}`", content)]
+#[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct OneLineCode {
     content: String,
 }
@@ -424,7 +356,7 @@ impl OneLineCode {
 /// ```
 /// ````
 #[derive(Debug, Eq, PartialEq, Display)]
-#[display(fmt = "```{}{}```", r#"language.as_deref().unwrap_or("")"#, content)]
+#[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct MultiLineCode {
     content: String,
     language: Option<String>,
@@ -461,7 +393,8 @@ impl MultiLineCode {
 /// > this is
 /// > block quote
 /// ```
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Display)]
+#[display(fmt = "{}", "self.to_markdown_string()")]
 pub struct BlockQuote {
     content: MarkdownElementCollection,
 }
@@ -478,25 +411,213 @@ impl BlockQuote {
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
+}
 
-    /// Returns the content of the block quote text as plain text.
-    pub fn to_plain_text(&self) -> String {
+/// A trait for converting a markdown component to a String.
+pub trait MarkdownToString {
+    /// Returns the content of the component as markdown styled text.
+    fn to_markdown_string(&self) -> String;
+
+    /// Returns the content of the component as plain text.
+    fn to_plain_string(&self) -> String;
+}
+
+impl fmt::Display for dyn MarkdownToString {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.to_markdown_string())
+    }
+}
+
+impl MarkdownToString for MarkdownDocument {
+    /// Returns the content of the document as markdown styled text.
+    fn to_markdown_string(&self) -> String {
+        self.content.to_markdown_string()
+    }
+
+    /// Returns the content of the document as plain text.
+    fn to_plain_string(&self) -> String {
         self.content.to_plain_string()
     }
 }
 
-impl fmt::Display for BlockQuote {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
+impl MarkdownToString for MarkdownElementCollection {
+    /// Returns the content of the collection as markdown styled text.
+    fn to_markdown_string(&self) -> String {
+        self.0
+            .iter()
+            .map(|c| c.to_markdown_string())
+            .collect::<String>()
+    }
+
+    /// Returns the content of the collection as plain text.
+    fn to_plain_string(&self) -> String {
+        self.0
+            .iter()
+            .map(|c| c.to_plain_string())
+            .collect::<String>()
+    }
+}
+
+impl MarkdownToString for MarkdownElement {
+    /// Returns the content of the element as markdown styled text.
+    fn to_markdown_string(&self) -> String {
+        match self {
+            MarkdownElement::Plain(x) => x.to_markdown_string(),
+            MarkdownElement::ItalicsStar(x) => x.to_markdown_string(),
+            MarkdownElement::ItalicsUnderscore(x) => x.to_markdown_string(),
+            MarkdownElement::Bold(x) => x.to_markdown_string(),
+            MarkdownElement::Underline(x) => x.to_markdown_string(),
+            MarkdownElement::Strikethrough(x) => x.to_markdown_string(),
+            MarkdownElement::Spoiler(x) => x.to_markdown_string(),
+            MarkdownElement::OneLineCode(x) => x.to_markdown_string(),
+            MarkdownElement::MultiLineCode(x) => x.to_markdown_string(),
+            MarkdownElement::BlockQuote(x) => x.to_markdown_string(),
+        }
+    }
+
+    /// Returns the content of the element as plain text.
+    fn to_plain_string(&self) -> String {
+        match self {
+            MarkdownElement::Plain(x) => x.to_plain_string(),
+            MarkdownElement::ItalicsStar(x) => x.to_plain_string(),
+            MarkdownElement::ItalicsUnderscore(x) => x.to_plain_string(),
+            MarkdownElement::Bold(x) => x.to_plain_string(),
+            MarkdownElement::Underline(x) => x.to_plain_string(),
+            MarkdownElement::Strikethrough(x) => x.to_plain_string(),
+            MarkdownElement::Spoiler(x) => x.to_plain_string(),
+            MarkdownElement::OneLineCode(x) => x.to_plain_string(),
+            MarkdownElement::MultiLineCode(x) => x.to_plain_string(),
+            MarkdownElement::BlockQuote(x) => x.to_plain_string(),
+        }
+    }
+}
+
+impl MarkdownToString for Plain {
+    /// Returns the content of the plain text.
+    fn to_markdown_string(&self) -> String {
+        self.content.clone()
+    }
+
+    /// Returns the content of the plain text.
+    fn to_plain_string(&self) -> String {
+        self.content.clone()
+    }
+}
+
+impl MarkdownToString for ItalicsStar {
+    /// Returns the content of italics text as markdown styled text.
+    fn to_markdown_string(&self) -> String {
+        format!("*{}*", self.content.to_markdown_string())
+    }
+
+    /// Returns the content of italics text as plain text.
+    fn to_plain_string(&self) -> String {
+        self.content.to_plain_string()
+    }
+}
+
+impl MarkdownToString for ItalicsUnderscore {
+    /// Returns the content of italics text as markdown styled text.
+    fn to_markdown_string(&self) -> String {
+        format!("_{}_", self.content.to_markdown_string())
+    }
+
+    /// Returns the content of italics text as plain text.
+    fn to_plain_string(&self) -> String {
+        self.content.to_plain_string()
+    }
+}
+
+impl MarkdownToString for Bold {
+    /// Returns the content of bold text as markdown styled text.
+    fn to_markdown_string(&self) -> String {
+        format!("**{}**", self.content.to_markdown_string())
+    }
+
+    /// Returns the content of bold text as plain text.
+    fn to_plain_string(&self) -> String {
+        self.content.to_plain_string()
+    }
+}
+
+impl MarkdownToString for Underline {
+    /// Returns the content of underline text as markdown styled text.
+    fn to_markdown_string(&self) -> String {
+        format!("__{}__", self.content.to_markdown_string())
+    }
+
+    /// Returns the content of underline text as plain text.
+    fn to_plain_string(&self) -> String {
+        self.content.to_plain_string()
+    }
+}
+
+impl MarkdownToString for Strikethrough {
+    /// Returns the content of strikethrough text as markdown styled text.
+    fn to_markdown_string(&self) -> String {
+        format!("~~{}~~", self.content.to_markdown_string())
+    }
+
+    /// Returns the content of strikethrough text as plain text.
+    fn to_plain_string(&self) -> String {
+        self.content.to_plain_string()
+    }
+}
+
+impl MarkdownToString for Spoiler {
+    /// Returns the content of spoiler text as markdown styled text.
+    fn to_markdown_string(&self) -> String {
+        format!("||{}||", self.content.to_markdown_string())
+    }
+
+    /// Returns the content of spoiler text as plain text.
+    fn to_plain_string(&self) -> String {
+        self.content.to_plain_string()
+    }
+}
+
+impl MarkdownToString for OneLineCode {
+    /// Returns the content of the inline code block as markdown styled text.
+    fn to_markdown_string(&self) -> String {
+        format!("`{}`", self.content)
+    }
+
+    /// Returns the content of the inline code block as plain text.
+    fn to_plain_string(&self) -> String {
+        self.content.clone()
+    }
+}
+
+impl MarkdownToString for MultiLineCode {
+    /// Returns the content of the multiline code block as markdown styled text.
+    fn to_markdown_string(&self) -> String {
+        format!(
+            "```{}{}```",
+            self.language.as_deref().unwrap_or(""),
             self.content
-                .to_string()
-                .split('\n')
-                .map(|line| format!("> {}", line))
-                .collect::<Vec<_>>()
-                .join("\n")
         )
+    }
+
+    /// Returns the content of the multiline code block as plain text.
+    fn to_plain_string(&self) -> String {
+        self.content.clone()
+    }
+}
+
+impl MarkdownToString for BlockQuote {
+    /// Returns the content of the block quote as markdown styled text.
+    fn to_markdown_string(&self) -> String {
+        self.content
+            .to_markdown_string()
+            .split('\n')
+            .map(|line| format!("> {}", line))
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
+    /// Returns the content of the block quote as plain text.
+    fn to_plain_string(&self) -> String {
+        self.content.to_plain_string()
     }
 }
 

@@ -116,6 +116,7 @@ The following is the list of known limitations.
 - Block quotes are not parsed. `> ` will be treated as plain text.
 - Nested emphasis, like `*italics **bold italics** italics*`, may not be parsed properly.
 - Intraword emphasis may not be handled properly. The parser treats `foo_bar_baz` as emphasis, while Discord's parser does not.
+- Escaping sequence will be treated as plain text.
 
 ## License
 

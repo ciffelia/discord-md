@@ -143,6 +143,7 @@
 //! - Block quotes are not parsed. `> ` will be treated as plain text.
 //! - Nested emphasis, like `*italics **bold italics** italics*`, may not be parsed properly.
 //! - Intraword emphasis may not be handled properly. The parser treats `foo_bar_baz` as emphasis, while Discord's parser does not.
+//! - Escaping sequence will be treated as plain text.
 
 pub mod ast;
 pub mod builder;
@@ -190,6 +191,7 @@ use ast::MarkdownDocument;
 /// - Block quotes are not parsed. `> ` will be treated as plain text.
 /// - Nested emphasis, like `*italics **bold italics** italics*`, may not be parsed properly.
 /// - Intraword emphasis may not be handled properly. The parser treats `foo_bar_baz` as emphasis, while Discord's parser does not.
+/// - Escaping sequence will be treated as plain text.
 pub fn parse(msg: &str) -> MarkdownDocument {
     // Since there are no invalid markdown document, parsing should never fails.
     let (rest, doc) = parser::markdown_document(msg).unwrap();

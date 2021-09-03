@@ -30,7 +30,6 @@
 //! ```
 
 use derive_more::{Display, From, Into, IntoIterator};
-use std::fmt;
 
 /// A markdown document. The root of AST.
 ///
@@ -420,12 +419,6 @@ pub trait MarkdownToString {
 
     /// Returns the content of the component as plain text.
     fn to_plain_string(&self) -> String;
-}
-
-impl fmt::Display for dyn MarkdownToString {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.to_markdown_string())
-    }
 }
 
 impl MarkdownToString for MarkdownDocument {

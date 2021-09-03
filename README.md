@@ -103,12 +103,12 @@ Add the following to your `Cargo.toml` file:
 
 ```toml
 [dependencies]
-discord-md = { git = "https://github.com/ciffelia/discord-md" }
+discord-md = "1.0.0-rc.1"
 ```
 
 ## Documentation
 
-Coming soon
+[Available at docs.rs][docs link]
 
 ## Parser limitations
 

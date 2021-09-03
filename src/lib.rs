@@ -110,7 +110,7 @@
 //! # Generating
 //!
 //! First, build an AST with [`builder`] module.
-//! Then call `to_string()` to generate markdown text from an AST.
+//! Then call `to_string()` to generate markdown text from the AST.
 //!
 //! ## Example
 //!

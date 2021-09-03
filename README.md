@@ -1,7 +1,9 @@
 # discord-md
 
-[![CI Status](https://github.com/ciffelia/discord-md/workflows/CI/badge.svg?branch=main)](https://github.com/ciffelia/discord-md/actions?query=workflow%3ACI+branch%3Amain)
-[![MIT or Apache 2.0 Licenses](https://img.shields.io/badge/license-MIT%20or%20Apache%202.0-blue)](#license)
+[![CI status][ci badge]][ci link]
+[![crate version][crates.io badge]][crates.io link]
+[![docs online][docs badge]][docs link]
+[![MIT or Apache 2.0 Licenses][license badge]][license link]
 
 Parser and generator for Discord's markdown, written in Rust
 
@@ -134,3 +136,15 @@ at your option.
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
 dual licensed as above, without any additional terms or conditions.
+
+[ci badge]: https://github.com/ciffelia/discord-md/workflows/CI/badge.svg?branch=main
+[ci link]: https://github.com/ciffelia/discord-md/actions?query=workflow%3ACI+branch%3Amain
+
+[crates.io badge]: https://img.shields.io/crates/v/discord-md
+[crates.io link]: https://crates.io/crates/discord-md
+
+[docs badge]: https://img.shields.io/badge/docs-online-green
+[docs link]: https://docs.rs/discord-md
+
+[license badge]: https://img.shields.io/badge/license-MIT%20or%20Apache%202.0-blue
+[license link]: #license

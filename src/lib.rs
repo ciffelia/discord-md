@@ -1,4 +1,4 @@
-//! `discord_md` is a Rust library that provides parser and builder for Discord's markdown.
+//! discord-md is a Rust library that provides parser and builder for Discord's markdown.
 //!
 //! # Installation
 //!

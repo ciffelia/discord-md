@@ -678,27 +678,15 @@ impl From<BlockQuote> for MarkdownElement {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_document_content() {
-        let test_case = || {
-            MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
-                "plain",
-            )))])
-        };
-        assert_eq!(MarkdownDocument::new(test_case()).content(), &test_case());
+    fn example_text() -> MarkdownElementCollection {
+        MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new("text")))])
     }
 
     #[test]
-    fn test_document_to_string() {
+    fn test_document_content() {
         assert_eq!(
-            MarkdownDocument::new(MarkdownElementCollection::new(vec![
-                MarkdownElement::Bold(Box::new(Bold::new(MarkdownElementCollection::new(vec![
-                    MarkdownElement::Plain(Box::new(Plain::new("bold"))),
-                ])))),
-                MarkdownElement::Plain(Box::new(Plain::new(" plain"))),
-            ]))
-            .to_string(),
-            "**bold** plain"
+            MarkdownDocument::new(example_text()).content(),
+            &example_text()
         );
     }
 
@@ -708,27 +696,6 @@ mod tests {
         assert_eq!(
             MarkdownElementCollection::new(test_case()).get(),
             &test_case()
-        );
-    }
-
-    #[test]
-    fn test_element_collection_to_string() {
-        assert_eq!(
-            MarkdownElementCollection::new(vec![
-                MarkdownElement::Bold(Box::new(Bold::new(MarkdownElementCollection::new(vec![
-                    MarkdownElement::Plain(Box::new(Plain::new("bold"))),
-                ])))),
-                MarkdownElement::Plain(Box::new(Plain::new(" plain "))),
-                MarkdownElement::Underline(Box::new(Underline::new(
-                    MarkdownElementCollection::new(vec![MarkdownElement::Bold(Box::new(
-                        Bold::new(MarkdownElementCollection::new(vec![
-                            MarkdownElement::Plain(Box::new(Plain::new("underline bold"))),
-                        ]))
-                    ))])
-                ))),
-            ])
-            .to_string(),
-            "**bold** plain __**underline bold**__"
         );
     }
 
@@ -777,53 +744,44 @@ mod tests {
     }
 
     #[test]
-    fn test_plain_to_string() {
-        assert_eq!(Plain::new("plain text").to_string(), "plain text");
+    fn test_italics_star_content() {
+        assert_eq!(ItalicsStar::new(example_text()).content(), &example_text());
     }
 
     #[test]
-    fn test_styled_content() {
-        let test_case = || {
-            MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
-                "text",
-            )))])
-        };
-
-        assert_eq!(ItalicsStar::new(test_case()).content(), &test_case());
-        assert_eq!(ItalicsUnderscore::new(test_case()).content(), &test_case());
-        assert_eq!(Bold::new(test_case()).content(), &test_case());
-        assert_eq!(Underline::new(test_case()).content(), &test_case());
-        assert_eq!(Strikethrough::new(test_case()).content(), &test_case());
-        assert_eq!(Spoiler::new(test_case()).content(), &test_case());
+    fn test_italics_underscore_content() {
+        assert_eq!(
+            ItalicsUnderscore::new(example_text()).content(),
+            &example_text()
+        );
     }
 
     #[test]
-    fn test_styled_to_string() {
-        let test_case = || {
-            MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
-                "text",
-            )))])
-        };
+    fn test_bold_content() {
+        assert_eq!(Bold::new(example_text()).content(), &example_text());
+    }
 
-        assert_eq!(ItalicsStar::new(test_case()).to_string(), "*text*");
-        assert_eq!(ItalicsUnderscore::new(test_case()).to_string(), "_text_");
-        assert_eq!(Bold::new(test_case()).to_string(), "**text**");
-        assert_eq!(Underline::new(test_case()).to_string(), "__text__");
-        assert_eq!(Strikethrough::new(test_case()).to_string(), "~~text~~");
-        assert_eq!(Spoiler::new(test_case()).to_string(), "||text||");
+    #[test]
+    fn test_underline_content() {
+        assert_eq!(Underline::new(example_text()).content(), &example_text());
+    }
+
+    #[test]
+    fn test_strikethrough_content() {
+        assert_eq!(
+            Strikethrough::new(example_text()).content(),
+            &example_text()
+        );
+    }
+
+    #[test]
+    fn test_spoiler_content() {
+        assert_eq!(Spoiler::new(example_text()).content(), &example_text());
     }
 
     #[test]
     fn test_one_line_code_content() {
         assert_eq!(OneLineCode::new("one line code").content(), "one line code");
-    }
-
-    #[test]
-    fn test_one_line_code_to_string() {
-        assert_eq!(
-            OneLineCode::new("one line code").to_string(),
-            "`one line code`"
-        );
     }
 
     #[test]
@@ -847,6 +805,132 @@ mod tests {
     }
 
     #[test]
+    fn test_block_quote_content() {
+        let test_case = || {
+            MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
+                "block quote\ntext",
+            )))])
+        };
+
+        assert_eq!(BlockQuote::new(test_case()).content(), &test_case());
+    }
+
+    #[test]
+    fn test_document_to_string() {
+        let ast = MarkdownDocument::new(MarkdownElementCollection::new(vec![
+            MarkdownElement::Bold(Box::new(Bold::new(MarkdownElementCollection::new(vec![
+                MarkdownElement::Plain(Box::new(Plain::new("bold"))),
+            ])))),
+            MarkdownElement::Plain(Box::new(Plain::new(" plain"))),
+        ]));
+
+        assert_eq!(ast.to_string(), "**bold** plain");
+        assert_eq!(ast.to_markdown_string(), "**bold** plain");
+        assert_eq!(ast.to_plain_string(), "bold plain");
+    }
+
+    #[test]
+    fn test_element_collection_to_string() {
+        let ast = MarkdownElementCollection::new(vec![
+            MarkdownElement::Bold(Box::new(Bold::new(MarkdownElementCollection::new(vec![
+                MarkdownElement::Plain(Box::new(Plain::new("bold"))),
+            ])))),
+            MarkdownElement::Plain(Box::new(Plain::new(" plain "))),
+            MarkdownElement::Underline(Box::new(Underline::new(MarkdownElementCollection::new(
+                vec![MarkdownElement::Bold(Box::new(Bold::new(
+                    MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(
+                        Plain::new("underline bold"),
+                    ))]),
+                )))],
+            )))),
+        ]);
+
+        assert_eq!(ast.to_string(), "**bold** plain __**underline bold**__");
+        assert_eq!(
+            ast.to_markdown_string(),
+            "**bold** plain __**underline bold**__"
+        );
+        assert_eq!(ast.to_plain_string(), "bold plain underline bold");
+    }
+
+    #[test]
+    fn test_plain_to_string() {
+        let ast = Plain::new("plain text");
+
+        assert_eq!(ast.to_string(), "plain text");
+        assert_eq!(ast.to_markdown_string(), "plain text");
+        assert_eq!(ast.to_plain_string(), "plain text");
+    }
+
+    #[test]
+    fn test_italics_star_to_string() {
+        assert_eq!(ItalicsStar::new(example_text()).to_string(), "*text*");
+        assert_eq!(
+            ItalicsStar::new(example_text()).to_markdown_string(),
+            "*text*"
+        );
+        assert_eq!(ItalicsStar::new(example_text()).to_plain_string(), "text");
+    }
+
+    #[test]
+    fn test_italics_underscore_to_string() {
+        assert_eq!(ItalicsUnderscore::new(example_text()).to_string(), "_text_");
+        assert_eq!(
+            ItalicsUnderscore::new(example_text()).to_markdown_string(),
+            "_text_"
+        );
+        assert_eq!(
+            ItalicsUnderscore::new(example_text()).to_plain_string(),
+            "text"
+        );
+    }
+
+    #[test]
+    fn test_bold_to_string() {
+        assert_eq!(Bold::new(example_text()).to_string(), "**text**");
+        assert_eq!(Bold::new(example_text()).to_markdown_string(), "**text**");
+        assert_eq!(Bold::new(example_text()).to_plain_string(), "text");
+    }
+
+    #[test]
+    fn test_underline_to_string() {
+        assert_eq!(Underline::new(example_text()).to_string(), "__text__");
+        assert_eq!(
+            Underline::new(example_text()).to_markdown_string(),
+            "__text__"
+        );
+        assert_eq!(Underline::new(example_text()).to_plain_string(), "text");
+    }
+
+    #[test]
+    fn test_strikethrough_to_string() {
+        assert_eq!(Strikethrough::new(example_text()).to_string(), "~~text~~");
+        assert_eq!(
+            Strikethrough::new(example_text()).to_markdown_string(),
+            "~~text~~"
+        );
+        assert_eq!(Strikethrough::new(example_text()).to_plain_string(), "text");
+    }
+
+    #[test]
+    fn test_spoiler_to_string() {
+        assert_eq!(Spoiler::new(example_text()).to_string(), "||text||");
+        assert_eq!(
+            Spoiler::new(example_text()).to_markdown_string(),
+            "||text||"
+        );
+        assert_eq!(Spoiler::new(example_text()).to_plain_string(), "text");
+    }
+
+    #[test]
+    fn test_one_line_code_to_string() {
+        assert_eq!(
+            OneLineCode::new("one line code").to_string(),
+            "`one line code`"
+        );
+    }
+
+    #[test]
     fn test_multi_line_code_to_string() {
         assert_eq!(
             MultiLineCode::new("\nmulti\nline\ncode\n", None).to_string(),
@@ -864,17 +948,6 @@ mod tests {
             MultiLineCode::new("\nmulti\nline\ncode\n", Some("js".to_string())).to_string(),
             "```js\nmulti\nline\ncode\n```"
         );
-    }
-
-    #[test]
-    fn test_block_quote_content() {
-        let test_case = || {
-            MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
-                "block quote\ntext",
-            )))])
-        };
-
-        assert_eq!(BlockQuote::new(test_case()).content(), &test_case());
     }
 
     #[test]
@@ -900,38 +973,50 @@ mod tests {
     }
 
     #[test]
-    fn test_element_from_styled() {
-        let test_element_collection = || {
-            MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new(
-                "text",
-            )))])
-        };
+    fn test_element_from_italics_star() {
+        assert_eq!(
+            MarkdownElement::from(ItalicsStar::new(example_text())),
+            MarkdownElement::ItalicsStar(Box::new(ItalicsStar::new(example_text())))
+        );
+    }
 
+    #[test]
+    fn test_element_from_italics_underscore() {
         assert_eq!(
-            MarkdownElement::from(ItalicsStar::new(test_element_collection())),
-            MarkdownElement::ItalicsStar(Box::new(ItalicsStar::new(test_element_collection())))
+            MarkdownElement::from(ItalicsUnderscore::new(example_text())),
+            MarkdownElement::ItalicsUnderscore(Box::new(ItalicsUnderscore::new(example_text())))
         );
+    }
+
+    #[test]
+    fn test_element_from_bold() {
         assert_eq!(
-            MarkdownElement::from(ItalicsUnderscore::new(test_element_collection())),
-            MarkdownElement::ItalicsUnderscore(Box::new(ItalicsUnderscore::new(
-                test_element_collection()
-            )))
+            MarkdownElement::from(Bold::new(example_text())),
+            MarkdownElement::Bold(Box::new(Bold::new(example_text())))
         );
+    }
+
+    #[test]
+    fn test_element_from_underline() {
         assert_eq!(
-            MarkdownElement::from(Bold::new(test_element_collection())),
-            MarkdownElement::Bold(Box::new(Bold::new(test_element_collection())))
+            MarkdownElement::from(Underline::new(example_text())),
+            MarkdownElement::Underline(Box::new(Underline::new(example_text())))
         );
+    }
+
+    #[test]
+    fn test_element_from_strikethrough() {
         assert_eq!(
-            MarkdownElement::from(Underline::new(test_element_collection())),
-            MarkdownElement::Underline(Box::new(Underline::new(test_element_collection())))
+            MarkdownElement::from(Strikethrough::new(example_text())),
+            MarkdownElement::Strikethrough(Box::new(Strikethrough::new(example_text())))
         );
+    }
+
+    #[test]
+    fn test_element_from_spoiler() {
         assert_eq!(
-            MarkdownElement::from(Strikethrough::new(test_element_collection())),
-            MarkdownElement::Strikethrough(Box::new(Strikethrough::new(test_element_collection())))
-        );
-        assert_eq!(
-            MarkdownElement::from(Spoiler::new(test_element_collection())),
-            MarkdownElement::Spoiler(Box::new(Spoiler::new(test_element_collection())))
+            MarkdownElement::from(Spoiler::new(example_text())),
+            MarkdownElement::Spoiler(Box::new(Spoiler::new(example_text())))
         );
     }
 

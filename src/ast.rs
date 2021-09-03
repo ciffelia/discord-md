@@ -66,6 +66,11 @@ impl MarkdownDocument {
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
+
+    /// Returns the content of the markdown document as plain text.
+    pub fn to_plain_text(&self) -> String {
+        self.content.to_plain_string()
+    }
 }
 
 /// A collection of [`MarkdownElement`].
@@ -81,6 +86,14 @@ impl MarkdownElementCollection {
     /// Returns the collection of markdown element in [`Vec`].
     pub fn get(&self) -> &Vec<MarkdownElement> {
         &self.0
+    }
+
+    /// Returns the content of the collection as plain text.
+    pub fn to_plain_string(&self) -> String {
+        self.0
+            .iter()
+            .map(|c| c.to_plain_string())
+            .collect::<String>()
     }
 }
 
@@ -126,6 +139,24 @@ pub enum MarkdownElement {
 
     /// Block quote, preceded by `> `.
     BlockQuote(Box<BlockQuote>),
+}
+
+impl MarkdownElement {
+    /// Returns the content of the element as plain text.
+    pub fn to_plain_string(&self) -> String {
+        match self {
+            MarkdownElement::Plain(x) => x.content().to_string(),
+            MarkdownElement::ItalicsStar(x) => x.to_plain_text(),
+            MarkdownElement::ItalicsUnderscore(x) => x.to_plain_text(),
+            MarkdownElement::Bold(x) => x.to_plain_text(),
+            MarkdownElement::Underline(x) => x.to_plain_text(),
+            MarkdownElement::Strikethrough(x) => x.to_plain_text(),
+            MarkdownElement::Spoiler(x) => x.to_plain_text(),
+            MarkdownElement::OneLineCode(x) => x.content().to_string(),
+            MarkdownElement::MultiLineCode(x) => x.content().to_string(),
+            MarkdownElement::BlockQuote(x) => x.to_plain_text(),
+        }
+    }
 }
 
 /// Plain text.
@@ -175,6 +206,11 @@ impl ItalicsStar {
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
+
+    /// Returns the content of italics text as plain text.
+    pub fn to_plain_text(&self) -> String {
+        self.content.to_plain_string()
+    }
 }
 
 /// Italics text, wrapped in `_`.
@@ -199,6 +235,11 @@ impl ItalicsUnderscore {
     /// Returns the content of italics text.
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
+    }
+
+    /// Returns the content of italics text as plain text.
+    pub fn to_plain_text(&self) -> String {
+        self.content.to_plain_string()
     }
 }
 
@@ -225,6 +266,11 @@ impl Bold {
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
+
+    /// Returns the content of bold text as plain text.
+    pub fn to_plain_text(&self) -> String {
+        self.content.to_plain_string()
+    }
 }
 
 /// Underline text, wrapped in `__`.
@@ -249,6 +295,11 @@ impl Underline {
     /// Returns the content of underline text.
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
+    }
+
+    /// Returns the content of bold text as plain text.
+    pub fn to_plain_text(&self) -> String {
+        self.content.to_plain_string()
     }
 }
 
@@ -275,6 +326,11 @@ impl Strikethrough {
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
     }
+
+    /// Returns the content of strikethrough text as plain text.
+    pub fn to_plain_text(&self) -> String {
+        self.content.to_plain_string()
+    }
 }
 
 /// Spoiler text, wrapped in `||`.
@@ -299,6 +355,11 @@ impl Spoiler {
     /// Returns the content of spoiler text.
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
+    }
+
+    /// Returns the content of spoiler text as plain text.
+    pub fn to_plain_text(&self) -> String {
+        self.content.to_plain_string()
     }
 }
 
@@ -392,6 +453,11 @@ impl BlockQuote {
     /// Returns the content of the block quote text.
     pub fn content(&self) -> &MarkdownElementCollection {
         &self.content
+    }
+
+    /// Returns the content of the block quote text as plain text.
+    pub fn to_plain_text(&self) -> String {
+        self.content.to_plain_string()
     }
 }
 

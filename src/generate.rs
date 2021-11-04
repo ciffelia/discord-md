@@ -20,7 +20,7 @@
 //!
 //! assert_eq!(ast.to_string(), "**bold** text");
 //! assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new()), "**bold** text");
-//! assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().remove_format(true)), "bold text");
+//! assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().omit_format(true)), "bold text");
 //! ```
 
 use crate::ast::{
@@ -42,15 +42,15 @@ use crate::ast::{
 /// ]);
 ///
 /// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new()), "||spoiler|| text");
-/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().remove_format(true)), "spoiler text");
-/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().remove_spoiler(true)), " text");
+/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().omit_format(true)), "spoiler text");
+/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().omit_spoiler(true)), "  text");
 /// ```
 pub struct ToMarkdownStringOption {
     /// Omit markdown styling from the output
-    pub remove_format: bool,
+    pub omit_format: bool,
 
     /// Omit spoilers from the output
-    pub remove_spoiler: bool,
+    pub omit_spoiler: bool,
 }
 
 impl ToMarkdownStringOption {
@@ -58,13 +58,13 @@ impl ToMarkdownStringOption {
         Default::default()
     }
 
-    pub fn remove_format(mut self, value: bool) -> Self {
-        self.remove_format = value;
+    pub fn omit_format(mut self, value: bool) -> Self {
+        self.omit_format = value;
         self
     }
 
-    pub fn remove_spoiler(mut self, value: bool) -> Self {
-        self.remove_spoiler = value;
+    pub fn omit_spoiler(mut self, value: bool) -> Self {
+        self.omit_spoiler = value;
         self
     }
 }
@@ -72,8 +72,8 @@ impl ToMarkdownStringOption {
 impl Default for ToMarkdownStringOption {
     fn default() -> Self {
         Self {
-            remove_format: false,
-            remove_spoiler: false,
+            omit_format: false,
+            omit_spoiler: false,
         }
     }
 }
@@ -131,7 +131,7 @@ impl ToMarkdownString for ItalicsStar {
     fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
         let content = self.content().to_markdown_string(option);
 
-        if option.remove_format {
+        if option.omit_format {
             content
         } else {
             format!("*{}*", content)
@@ -144,7 +144,7 @@ impl ToMarkdownString for ItalicsUnderscore {
     fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
         let content = self.content().to_markdown_string(option);
 
-        if option.remove_format {
+        if option.omit_format {
             content
         } else {
             format!("_{}_", content)
@@ -157,7 +157,7 @@ impl ToMarkdownString for Bold {
     fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
         let content = self.content().to_markdown_string(option);
 
-        if option.remove_format {
+        if option.omit_format {
             content
         } else {
             format!("**{}**", content)
@@ -170,7 +170,7 @@ impl ToMarkdownString for Underline {
     fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
         let content = self.content().to_markdown_string(option);
 
-        if option.remove_format {
+        if option.omit_format {
             content
         } else {
             format!("__{}__", content)
@@ -183,7 +183,7 @@ impl ToMarkdownString for Strikethrough {
     fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
         let content = self.content().to_markdown_string(option);
 
-        if option.remove_format {
+        if option.omit_format {
             content
         } else {
             format!("~~{}~~", content)
@@ -196,9 +196,9 @@ impl ToMarkdownString for Spoiler {
     fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
         let content = self.content().to_markdown_string(option);
 
-        if option.remove_spoiler {
+        if option.omit_spoiler {
             " ".to_string()
-        } else if option.remove_format {
+        } else if option.omit_format {
             content
         } else {
             format!("||{}||", content)
@@ -211,7 +211,7 @@ impl ToMarkdownString for OneLineCode {
     fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
         let content = self.content().to_string();
 
-        if option.remove_format {
+        if option.omit_format {
             content
         } else {
             format!("`{}`", content)
@@ -224,7 +224,7 @@ impl ToMarkdownString for MultiLineCode {
     fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
         let content = self.content().to_string();
 
-        if option.remove_format {
+        if option.omit_format {
             content
         } else {
             format!(
@@ -241,7 +241,7 @@ impl ToMarkdownString for BlockQuote {
     fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
         let content = self.content().to_markdown_string(option);
 
-        if option.remove_format {
+        if option.omit_format {
             content
         } else {
             content
@@ -265,18 +265,18 @@ mod tests {
         ToMarkdownStringOption::new()
     }
 
-    fn option_remove_format() -> ToMarkdownStringOption {
-        ToMarkdownStringOption::new().remove_format(true)
+    fn option_omit_format() -> ToMarkdownStringOption {
+        ToMarkdownStringOption::new().omit_format(true)
     }
 
-    fn option_remove_spoiler() -> ToMarkdownStringOption {
-        ToMarkdownStringOption::new().remove_spoiler(true)
+    fn option_omit_spoiler() -> ToMarkdownStringOption {
+        ToMarkdownStringOption::new().omit_spoiler(true)
     }
 
-    fn option_remove_format_and_spoiler() -> ToMarkdownStringOption {
+    fn option_omit_format_and_spoiler() -> ToMarkdownStringOption {
         ToMarkdownStringOption::new()
-            .remove_format(true)
-            .remove_spoiler(true)
+            .omit_format(true)
+            .omit_spoiler(true)
     }
 
     #[test]
@@ -293,12 +293,12 @@ mod tests {
             "||spoiler|| plain"
         );
         assert_eq!(
-            ast.to_markdown_string(&option_remove_format()),
+            ast.to_markdown_string(&option_omit_format()),
             "spoiler plain"
         );
-        assert_eq!(ast.to_markdown_string(&option_remove_spoiler()), "  plain");
+        assert_eq!(ast.to_markdown_string(&option_omit_spoiler()), "  plain");
         assert_eq!(
-            ast.to_markdown_string(&option_remove_format_and_spoiler()),
+            ast.to_markdown_string(&option_omit_format_and_spoiler()),
             "  plain"
         );
     }
@@ -324,15 +324,15 @@ mod tests {
             "||spoiler|| plain __**underline bold**__"
         );
         assert_eq!(
-            ast.to_markdown_string(&option_remove_format()),
+            ast.to_markdown_string(&option_omit_format()),
             "spoiler plain underline bold"
         );
         assert_eq!(
-            ast.to_markdown_string(&option_remove_spoiler()),
+            ast.to_markdown_string(&option_omit_spoiler()),
             "  plain __**underline bold**__"
         );
         assert_eq!(
-            ast.to_markdown_string(&option_remove_format_and_spoiler()),
+            ast.to_markdown_string(&option_omit_format_and_spoiler()),
             "  plain underline bold"
         );
     }
@@ -342,10 +342,7 @@ mod tests {
         let ast = Plain::new("plain text");
 
         assert_eq!(ast.to_markdown_string(&option_default()), "plain text");
-        assert_eq!(
-            ast.to_markdown_string(&option_remove_format()),
-            "plain text"
-        );
+        assert_eq!(ast.to_markdown_string(&option_omit_format()), "plain text");
     }
 
     #[test]
@@ -355,7 +352,7 @@ mod tests {
             "*text*"
         );
         assert_eq!(
-            ItalicsStar::new(example_text()).to_markdown_string(&option_remove_format()),
+            ItalicsStar::new(example_text()).to_markdown_string(&option_omit_format()),
             "text"
         );
     }
@@ -367,7 +364,7 @@ mod tests {
             "_text_"
         );
         assert_eq!(
-            ItalicsUnderscore::new(example_text()).to_markdown_string(&option_remove_format()),
+            ItalicsUnderscore::new(example_text()).to_markdown_string(&option_omit_format()),
             "text"
         );
     }
@@ -379,7 +376,7 @@ mod tests {
             "**text**"
         );
         assert_eq!(
-            Bold::new(example_text()).to_markdown_string(&option_remove_format()),
+            Bold::new(example_text()).to_markdown_string(&option_omit_format()),
             "text"
         );
     }
@@ -391,7 +388,7 @@ mod tests {
             "__text__"
         );
         assert_eq!(
-            Underline::new(example_text()).to_markdown_string(&option_remove_format()),
+            Underline::new(example_text()).to_markdown_string(&option_omit_format()),
             "text"
         );
     }
@@ -403,7 +400,7 @@ mod tests {
             "~~text~~"
         );
         assert_eq!(
-            Strikethrough::new(example_text()).to_markdown_string(&option_remove_format()),
+            Strikethrough::new(example_text()).to_markdown_string(&option_omit_format()),
             "text"
         );
     }
@@ -415,15 +412,15 @@ mod tests {
             "||text||"
         );
         assert_eq!(
-            Spoiler::new(example_text()).to_markdown_string(&option_remove_format()),
+            Spoiler::new(example_text()).to_markdown_string(&option_omit_format()),
             "text"
         );
         assert_eq!(
-            Spoiler::new(example_text()).to_markdown_string(&option_remove_spoiler()),
+            Spoiler::new(example_text()).to_markdown_string(&option_omit_spoiler()),
             " "
         );
         assert_eq!(
-            Spoiler::new(example_text()).to_markdown_string(&option_remove_format_and_spoiler()),
+            Spoiler::new(example_text()).to_markdown_string(&option_omit_format_and_spoiler()),
             " "
         );
     }
@@ -435,7 +432,7 @@ mod tests {
             "`one line code`"
         );
         assert_eq!(
-            OneLineCode::new("one line code").to_markdown_string(&option_remove_format()),
+            OneLineCode::new("one line code").to_markdown_string(&option_omit_format()),
             "one line code"
         );
     }
@@ -448,7 +445,7 @@ mod tests {
         );
         assert_eq!(
             MultiLineCode::new("\nmulti\nline\ncode\n", None)
-                .to_markdown_string(&option_remove_format()),
+                .to_markdown_string(&option_omit_format()),
             "\nmulti\nline\ncode\n"
         );
 
@@ -458,7 +455,7 @@ mod tests {
         );
         assert_eq!(
             MultiLineCode::new(" multi\nline\ncode\n", None)
-                .to_markdown_string(&option_remove_format()),
+                .to_markdown_string(&option_omit_format()),
             " multi\nline\ncode\n"
         );
 
@@ -467,7 +464,7 @@ mod tests {
             "```multi line code```"
         );
         assert_eq!(
-            MultiLineCode::new("multi line code", None).to_markdown_string(&option_remove_format()),
+            MultiLineCode::new("multi line code", None).to_markdown_string(&option_omit_format()),
             "multi line code"
         );
 
@@ -478,7 +475,7 @@ mod tests {
         );
         assert_eq!(
             MultiLineCode::new("\nmulti\nline\ncode\n", Some("js".to_string()))
-                .to_markdown_string(&option_remove_format()),
+                .to_markdown_string(&option_omit_format()),
             "\nmulti\nline\ncode\n"
         );
     }
@@ -496,7 +493,7 @@ mod tests {
             "> block quote\n> text"
         );
         assert_eq!(
-            BlockQuote::new(test_case()).to_markdown_string(&option_remove_format()),
+            BlockQuote::new(test_case()).to_markdown_string(&option_omit_format()),
             "block quote\ntext"
         );
     }

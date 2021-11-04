@@ -1,17 +1,17 @@
 //! Generates markdown text or plain text from an AST
 //!
-//! [`generate`](crate::generate) module provides [`MarkdownToString`] trait, which provides methods
+//! [`generate`](crate::generate) module provides [`ToMarkdownString`] trait, which provides methods
 //! to generate markdown text or plain text from an AST.
 //!
-//! Note that every struct that implements [`MarkdownToString`] also implements [`Display`](std::fmt::Display).
+//! Note that every struct that implements [`ToMarkdownString`] also implements [`Display`](std::fmt::Display).
 //! This means you can use [`to_string()`](std::string::ToString::to_string())
-//! instead of [`to_markdown_string()`](`MarkdownToString::to_markdown_string()) (those two are equivalent).
+//! instead of [`to_markdown_string()`](`ToMarkdownString::to_markdown_string()).
 //!
 //! # Example
 //!
 //! ```
 //! use discord_md::ast::*;
-//! use discord_md::generate::MarkdownToString;
+//! use discord_md::generate::{ToMarkdownString, ToMarkdownStringOption};
 //!
 //! let ast = MarkdownDocument::new(vec![
 //!     MarkdownElement::Bold(Box::new(Bold::new("bold"))),
@@ -19,8 +19,8 @@
 //! ]);
 //!
 //! assert_eq!(ast.to_string(), "**bold** text");
-//! assert_eq!(ast.to_markdown_string(), "**bold** text");
-//! assert_eq!(ast.to_plain_string(), "bold text");
+//! assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new()), "**bold** text");
+//! assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().remove_format(true)), "bold text");
 //! ```
 
 use crate::ast::{
@@ -29,205 +29,227 @@ use crate::ast::{
     Underline,
 };
 
-/// A trait for converting a markdown component to a String.
-pub trait MarkdownToString {
+/// Struct that allows to alter [`to_markdown_string()`](`ToMarkdownString::to_markdown_string())'s behaviour.
+/// # Example
+///
+/// ```
+/// use discord_md::ast::*;
+/// use discord_md::generate::{ToMarkdownString, ToMarkdownStringOption};
+///
+/// let ast = MarkdownDocument::new(vec![
+///     MarkdownElement::Spoiler(Box::new(Spoiler::new("spoiler"))),
+///     MarkdownElement::Plain(Box::new(Plain::new(" text")))
+/// ]);
+///
+/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new()), "||spoiler|| text");
+/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().remove_format(true)), "spoiler text");
+/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().remove_spoiler(true)), " text");
+/// ```
+pub struct ToMarkdownStringOption {
+    /// Omit markdown styling from the output
+    pub remove_format: bool,
+
+    /// Omit spoilers from the output
+    pub remove_spoiler: bool,
+}
+
+impl ToMarkdownStringOption {
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    pub fn remove_format(mut self, value: bool) -> Self {
+        self.remove_format = value;
+        self
+    }
+
+    pub fn remove_spoiler(mut self, value: bool) -> Self {
+        self.remove_spoiler = value;
+        self
+    }
+}
+
+impl Default for ToMarkdownStringOption {
+    fn default() -> Self {
+        Self {
+            remove_format: false,
+            remove_spoiler: false,
+        }
+    }
+}
+
+/// A trait for converting a markdown component into a String.
+pub trait ToMarkdownString {
     /// Returns the content of the component as markdown styled text.
-    fn to_markdown_string(&self) -> String;
-
-    /// Returns the content of the component as plain text.
-    fn to_plain_string(&self) -> String;
+    fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String;
 }
 
-impl MarkdownToString for MarkdownDocument {
+impl ToMarkdownString for MarkdownDocument {
     /// Returns the content of the document as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        self.content().to_markdown_string()
-    }
-
-    /// Returns the content of the document as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content().to_plain_string()
+    fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
+        self.content().to_markdown_string(option)
     }
 }
 
-impl MarkdownToString for MarkdownElementCollection {
+impl ToMarkdownString for MarkdownElementCollection {
     /// Returns the content of the collection as markdown styled text.
-    fn to_markdown_string(&self) -> String {
+    fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
         self.get()
             .iter()
-            .map(|c| c.to_markdown_string())
-            .collect::<String>()
-    }
-
-    /// Returns the content of the collection as plain text.
-    fn to_plain_string(&self) -> String {
-        self.get()
-            .iter()
-            .map(|c| c.to_plain_string())
+            .map(|c| c.to_markdown_string(option))
             .collect::<String>()
     }
 }
 
-impl MarkdownToString for MarkdownElement {
+impl ToMarkdownString for MarkdownElement {
     /// Returns the content of the element as markdown styled text.
-    fn to_markdown_string(&self) -> String {
+    fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
         match self {
-            MarkdownElement::Plain(x) => x.to_markdown_string(),
-            MarkdownElement::ItalicsStar(x) => x.to_markdown_string(),
-            MarkdownElement::ItalicsUnderscore(x) => x.to_markdown_string(),
-            MarkdownElement::Bold(x) => x.to_markdown_string(),
-            MarkdownElement::Underline(x) => x.to_markdown_string(),
-            MarkdownElement::Strikethrough(x) => x.to_markdown_string(),
-            MarkdownElement::Spoiler(x) => x.to_markdown_string(),
-            MarkdownElement::OneLineCode(x) => x.to_markdown_string(),
-            MarkdownElement::MultiLineCode(x) => x.to_markdown_string(),
-            MarkdownElement::BlockQuote(x) => x.to_markdown_string(),
-        }
-    }
-
-    /// Returns the content of the element as plain text.
-    fn to_plain_string(&self) -> String {
-        match self {
-            MarkdownElement::Plain(x) => x.to_plain_string(),
-            MarkdownElement::ItalicsStar(x) => x.to_plain_string(),
-            MarkdownElement::ItalicsUnderscore(x) => x.to_plain_string(),
-            MarkdownElement::Bold(x) => x.to_plain_string(),
-            MarkdownElement::Underline(x) => x.to_plain_string(),
-            MarkdownElement::Strikethrough(x) => x.to_plain_string(),
-            MarkdownElement::Spoiler(x) => x.to_plain_string(),
-            MarkdownElement::OneLineCode(x) => x.to_plain_string(),
-            MarkdownElement::MultiLineCode(x) => x.to_plain_string(),
-            MarkdownElement::BlockQuote(x) => x.to_plain_string(),
+            MarkdownElement::Plain(x) => x.to_markdown_string(option),
+            MarkdownElement::ItalicsStar(x) => x.to_markdown_string(option),
+            MarkdownElement::ItalicsUnderscore(x) => x.to_markdown_string(option),
+            MarkdownElement::Bold(x) => x.to_markdown_string(option),
+            MarkdownElement::Underline(x) => x.to_markdown_string(option),
+            MarkdownElement::Strikethrough(x) => x.to_markdown_string(option),
+            MarkdownElement::Spoiler(x) => x.to_markdown_string(option),
+            MarkdownElement::OneLineCode(x) => x.to_markdown_string(option),
+            MarkdownElement::MultiLineCode(x) => x.to_markdown_string(option),
+            MarkdownElement::BlockQuote(x) => x.to_markdown_string(option),
         }
     }
 }
 
-impl MarkdownToString for Plain {
+impl ToMarkdownString for Plain {
     /// Returns the content of the plain text.
-    fn to_markdown_string(&self) -> String {
-        self.content().to_string()
-    }
-
-    /// Returns the content of the plain text.
-    fn to_plain_string(&self) -> String {
+    fn to_markdown_string(&self, _option: &ToMarkdownStringOption) -> String {
         self.content().to_string()
     }
 }
 
-impl MarkdownToString for ItalicsStar {
+impl ToMarkdownString for ItalicsStar {
     /// Returns the content of italics text as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!("*{}*", self.content().to_markdown_string())
-    }
+    fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
+        let content = self.content().to_markdown_string(option);
 
-    /// Returns the content of italics text as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content().to_plain_string()
+        if option.remove_format {
+            content
+        } else {
+            format!("*{}*", content)
+        }
     }
 }
 
-impl MarkdownToString for ItalicsUnderscore {
+impl ToMarkdownString for ItalicsUnderscore {
     /// Returns the content of italics text as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!("_{}_", self.content().to_markdown_string())
-    }
+    fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
+        let content = self.content().to_markdown_string(option);
 
-    /// Returns the content of italics text as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content().to_plain_string()
+        if option.remove_format {
+            content
+        } else {
+            format!("_{}_", content)
+        }
     }
 }
 
-impl MarkdownToString for Bold {
+impl ToMarkdownString for Bold {
     /// Returns the content of bold text as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!("**{}**", self.content().to_markdown_string())
-    }
+    fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
+        let content = self.content().to_markdown_string(option);
 
-    /// Returns the content of bold text as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content().to_plain_string()
+        if option.remove_format {
+            content
+        } else {
+            format!("**{}**", content)
+        }
     }
 }
 
-impl MarkdownToString for Underline {
+impl ToMarkdownString for Underline {
     /// Returns the content of underline text as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!("__{}__", self.content().to_markdown_string())
-    }
+    fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
+        let content = self.content().to_markdown_string(option);
 
-    /// Returns the content of underline text as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content().to_plain_string()
+        if option.remove_format {
+            content
+        } else {
+            format!("__{}__", content)
+        }
     }
 }
 
-impl MarkdownToString for Strikethrough {
+impl ToMarkdownString for Strikethrough {
     /// Returns the content of strikethrough text as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!("~~{}~~", self.content().to_markdown_string())
-    }
+    fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
+        let content = self.content().to_markdown_string(option);
 
-    /// Returns the content of strikethrough text as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content().to_plain_string()
+        if option.remove_format {
+            content
+        } else {
+            format!("~~{}~~", content)
+        }
     }
 }
 
-impl MarkdownToString for Spoiler {
+impl ToMarkdownString for Spoiler {
     /// Returns the content of spoiler text as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!("||{}||", self.content().to_markdown_string())
-    }
+    fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
+        let content = self.content().to_markdown_string(option);
 
-    /// Returns the content of spoiler text as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content().to_plain_string()
+        if option.remove_spoiler {
+            "".to_string()
+        } else if option.remove_format {
+            content
+        } else {
+            format!("||{}||", content)
+        }
     }
 }
 
-impl MarkdownToString for OneLineCode {
+impl ToMarkdownString for OneLineCode {
     /// Returns the content of the inline code block as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!("`{}`", self.content())
-    }
+    fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
+        let content = self.content().to_string();
 
-    /// Returns the content of the inline code block as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content().to_string()
+        if option.remove_format {
+            content
+        } else {
+            format!("`{}`", content)
+        }
     }
 }
 
-impl MarkdownToString for MultiLineCode {
+impl ToMarkdownString for MultiLineCode {
     /// Returns the content of the multiline code block as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        format!(
-            "```{}{}```",
-            self.language().as_deref().unwrap_or(""),
-            self.content()
-        )
-    }
+    fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
+        let content = self.content().to_string();
 
-    /// Returns the content of the multiline code block as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content().to_string()
+        if option.remove_format {
+            content
+        } else {
+            format!(
+                "```{}{}```",
+                self.language().as_deref().unwrap_or(""),
+                content
+            )
+        }
     }
 }
 
-impl MarkdownToString for BlockQuote {
+impl ToMarkdownString for BlockQuote {
     /// Returns the content of the block quote as markdown styled text.
-    fn to_markdown_string(&self) -> String {
-        self.content()
-            .to_markdown_string()
-            .split('\n')
-            .map(|line| format!("> {}", line))
-            .collect::<Vec<_>>()
-            .join("\n")
-    }
+    fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
+        let content = self.content().to_markdown_string(option);
 
-    /// Returns the content of the block quote as plain text.
-    fn to_plain_string(&self) -> String {
-        self.content().to_plain_string()
+        if option.remove_format {
+            content
+        } else {
+            content
+                .split('\n')
+                .map(|line| format!("> {}", line))
+                .collect::<Vec<_>>()
+                .join("\n")
+        }
     }
 }
 
@@ -239,25 +261,54 @@ mod tests {
         MarkdownElementCollection::new(vec![MarkdownElement::Plain(Box::new(Plain::new("text")))])
     }
 
+    fn option_default() -> ToMarkdownStringOption {
+        ToMarkdownStringOption::new()
+    }
+
+    fn option_remove_format() -> ToMarkdownStringOption {
+        ToMarkdownStringOption::new().remove_format(true)
+    }
+
+    fn option_remove_spoiler() -> ToMarkdownStringOption {
+        ToMarkdownStringOption::new().remove_spoiler(true)
+    }
+
+    fn option_remove_format_and_spoiler() -> ToMarkdownStringOption {
+        ToMarkdownStringOption::new()
+            .remove_format(true)
+            .remove_spoiler(true)
+    }
+
     #[test]
     fn test_document_to_string() {
         let ast = MarkdownDocument::new(MarkdownElementCollection::new(vec![
-            MarkdownElement::Bold(Box::new(Bold::new(MarkdownElementCollection::new(vec![
-                MarkdownElement::Plain(Box::new(Plain::new("bold"))),
-            ])))),
+            MarkdownElement::Spoiler(Box::new(Spoiler::new(MarkdownElementCollection::new(
+                vec![MarkdownElement::Plain(Box::new(Plain::new("spoiler")))],
+            )))),
             MarkdownElement::Plain(Box::new(Plain::new(" plain"))),
         ]));
 
-        assert_eq!(ast.to_markdown_string(), "**bold** plain");
-        assert_eq!(ast.to_plain_string(), "bold plain");
+        assert_eq!(
+            ast.to_markdown_string(&option_default()),
+            "||spoiler|| plain"
+        );
+        assert_eq!(
+            ast.to_markdown_string(&option_remove_format()),
+            "spoiler plain"
+        );
+        assert_eq!(ast.to_markdown_string(&option_remove_spoiler()), " plain");
+        assert_eq!(
+            ast.to_markdown_string(&option_remove_format_and_spoiler()),
+            " plain"
+        );
     }
 
     #[test]
     fn test_element_collection_to_string() {
         let ast = MarkdownElementCollection::new(vec![
-            MarkdownElement::Bold(Box::new(Bold::new(MarkdownElementCollection::new(vec![
-                MarkdownElement::Plain(Box::new(Plain::new("bold"))),
-            ])))),
+            MarkdownElement::Spoiler(Box::new(Spoiler::new(MarkdownElementCollection::new(
+                vec![MarkdownElement::Plain(Box::new(Plain::new("spoiler")))],
+            )))),
             MarkdownElement::Plain(Box::new(Plain::new(" plain "))),
             MarkdownElement::Underline(Box::new(Underline::new(MarkdownElementCollection::new(
                 vec![MarkdownElement::Bold(Box::new(Bold::new(
@@ -269,82 +320,122 @@ mod tests {
         ]);
 
         assert_eq!(
-            ast.to_markdown_string(),
-            "**bold** plain __**underline bold**__"
+            ast.to_markdown_string(&option_default()),
+            "||spoiler|| plain __**underline bold**__"
         );
-        assert_eq!(ast.to_plain_string(), "bold plain underline bold");
+        assert_eq!(
+            ast.to_markdown_string(&option_remove_format()),
+            "spoiler plain underline bold"
+        );
+        assert_eq!(
+            ast.to_markdown_string(&option_remove_spoiler()),
+            " plain __**underline bold**__"
+        );
+        assert_eq!(
+            ast.to_markdown_string(&option_remove_format_and_spoiler()),
+            " plain underline bold"
+        );
     }
 
     #[test]
     fn test_plain_to_string() {
         let ast = Plain::new("plain text");
 
-        assert_eq!(ast.to_markdown_string(), "plain text");
-        assert_eq!(ast.to_plain_string(), "plain text");
+        assert_eq!(ast.to_markdown_string(&option_default()), "plain text");
+        assert_eq!(
+            ast.to_markdown_string(&option_remove_format()),
+            "plain text"
+        );
     }
 
     #[test]
     fn test_italics_star_to_string() {
         assert_eq!(
-            ItalicsStar::new(example_text()).to_markdown_string(),
+            ItalicsStar::new(example_text()).to_markdown_string(&option_default()),
             "*text*"
         );
-        assert_eq!(ItalicsStar::new(example_text()).to_plain_string(), "text");
+        assert_eq!(
+            ItalicsStar::new(example_text()).to_markdown_string(&option_remove_format()),
+            "text"
+        );
     }
 
     #[test]
     fn test_italics_underscore_to_string() {
         assert_eq!(
-            ItalicsUnderscore::new(example_text()).to_markdown_string(),
+            ItalicsUnderscore::new(example_text()).to_markdown_string(&option_default()),
             "_text_"
         );
         assert_eq!(
-            ItalicsUnderscore::new(example_text()).to_plain_string(),
+            ItalicsUnderscore::new(example_text()).to_markdown_string(&option_remove_format()),
             "text"
         );
     }
 
     #[test]
     fn test_bold_to_string() {
-        assert_eq!(Bold::new(example_text()).to_markdown_string(), "**text**");
-        assert_eq!(Bold::new(example_text()).to_plain_string(), "text");
+        assert_eq!(
+            Bold::new(example_text()).to_markdown_string(&option_default()),
+            "**text**"
+        );
+        assert_eq!(
+            Bold::new(example_text()).to_markdown_string(&option_remove_format()),
+            "text"
+        );
     }
 
     #[test]
     fn test_underline_to_string() {
         assert_eq!(
-            Underline::new(example_text()).to_markdown_string(),
+            Underline::new(example_text()).to_markdown_string(&option_default()),
             "__text__"
         );
-        assert_eq!(Underline::new(example_text()).to_plain_string(), "text");
+        assert_eq!(
+            Underline::new(example_text()).to_markdown_string(&option_remove_format()),
+            "text"
+        );
     }
 
     #[test]
     fn test_strikethrough_to_string() {
         assert_eq!(
-            Strikethrough::new(example_text()).to_markdown_string(),
+            Strikethrough::new(example_text()).to_markdown_string(&option_default()),
             "~~text~~"
         );
-        assert_eq!(Strikethrough::new(example_text()).to_plain_string(), "text");
+        assert_eq!(
+            Strikethrough::new(example_text()).to_markdown_string(&option_remove_format()),
+            "text"
+        );
     }
 
     #[test]
     fn test_spoiler_to_string() {
         assert_eq!(
-            Spoiler::new(example_text()).to_markdown_string(),
+            Spoiler::new(example_text()).to_markdown_string(&option_default()),
             "||text||"
         );
-        assert_eq!(Spoiler::new(example_text()).to_plain_string(), "text");
+        assert_eq!(
+            Spoiler::new(example_text()).to_markdown_string(&option_remove_format()),
+            "text"
+        );
+        assert_eq!(
+            Spoiler::new(example_text()).to_markdown_string(&option_remove_spoiler()),
+            ""
+        );
+        assert_eq!(
+            Spoiler::new(example_text()).to_markdown_string(&option_remove_format_and_spoiler()),
+            ""
+        );
     }
 
     #[test]
     fn test_one_line_code_to_string() {
         assert_eq!(
-            OneLineCode::new("one line code").to_markdown_string(),
+            OneLineCode::new("one line code").to_markdown_string(&option_default()),
             "`one line code`"
         );
         assert_eq!(
-            OneLineCode::new("one line code").to_plain_string(),
+            OneLineCode::new("one line code").to_markdown_string(&option_remove_format()),
             "one line code"
         );
     }
@@ -352,39 +443,42 @@ mod tests {
     #[test]
     fn test_multi_line_code_to_string() {
         assert_eq!(
-            MultiLineCode::new("\nmulti\nline\ncode\n", None).to_markdown_string(),
+            MultiLineCode::new("\nmulti\nline\ncode\n", None).to_markdown_string(&option_default()),
             "```\nmulti\nline\ncode\n```"
         );
         assert_eq!(
-            MultiLineCode::new("\nmulti\nline\ncode\n", None).to_plain_string(),
+            MultiLineCode::new("\nmulti\nline\ncode\n", None)
+                .to_markdown_string(&option_remove_format()),
             "\nmulti\nline\ncode\n"
         );
 
         assert_eq!(
-            MultiLineCode::new(" multi\nline\ncode\n", None).to_markdown_string(),
+            MultiLineCode::new(" multi\nline\ncode\n", None).to_markdown_string(&option_default()),
             "``` multi\nline\ncode\n```"
         );
         assert_eq!(
-            MultiLineCode::new(" multi\nline\ncode\n", None).to_plain_string(),
+            MultiLineCode::new(" multi\nline\ncode\n", None)
+                .to_markdown_string(&option_remove_format()),
             " multi\nline\ncode\n"
         );
 
         assert_eq!(
-            MultiLineCode::new("multi line code", None).to_markdown_string(),
+            MultiLineCode::new("multi line code", None).to_markdown_string(&option_default()),
             "```multi line code```"
         );
         assert_eq!(
-            MultiLineCode::new("multi line code", None).to_plain_string(),
+            MultiLineCode::new("multi line code", None).to_markdown_string(&option_remove_format()),
             "multi line code"
         );
 
         assert_eq!(
             MultiLineCode::new("\nmulti\nline\ncode\n", Some("js".to_string()))
-                .to_markdown_string(),
+                .to_markdown_string(&option_default()),
             "```js\nmulti\nline\ncode\n```"
         );
         assert_eq!(
-            MultiLineCode::new("\nmulti\nline\ncode\n", Some("js".to_string())).to_plain_string(),
+            MultiLineCode::new("\nmulti\nline\ncode\n", Some("js".to_string()))
+                .to_markdown_string(&option_remove_format()),
             "\nmulti\nline\ncode\n"
         );
     }
@@ -398,11 +492,11 @@ mod tests {
         };
 
         assert_eq!(
-            BlockQuote::new(test_case()).to_markdown_string(),
+            BlockQuote::new(test_case()).to_markdown_string(&option_default()),
             "> block quote\n> text"
         );
         assert_eq!(
-            BlockQuote::new(test_case()).to_plain_string(),
+            BlockQuote::new(test_case()).to_markdown_string(&option_remove_format()),
             "block quote\ntext"
         );
     }

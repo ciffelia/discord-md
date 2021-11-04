@@ -29,7 +29,7 @@
 //! assert_eq!(ast.to_string(), "**bold** text");
 //! ```
 
-use crate::generate::MarkdownToString;
+use crate::generate::{ToMarkdownString, ToMarkdownStringOption};
 use derive_more::{Display, From, Into, IntoIterator};
 
 /// A markdown document. The root of AST.
@@ -50,7 +50,7 @@ use derive_more::{Display, From, Into, IntoIterator};
 /// assert_eq!(ast.to_string(), "**bold text**");
 /// ```
 #[derive(Debug, Eq, PartialEq, Hash, Default, Display)]
-#[display(fmt = "{}", "self.to_markdown_string()")]
+#[display(fmt = "{}", "self.to_markdown_string(&ToMarkdownStringOption::new())")]
 pub struct MarkdownDocument {
     content: MarkdownElementCollection,
 }
@@ -71,7 +71,7 @@ impl MarkdownDocument {
 
 /// A collection of [`MarkdownElement`].
 #[derive(Debug, Eq, PartialEq, Hash, Default, From, Into, IntoIterator, Display)]
-#[display(fmt = "{}", "self.to_markdown_string()")]
+#[display(fmt = "{}", "self.to_markdown_string(&ToMarkdownStringOption::new())")]
 pub struct MarkdownElementCollection(Vec<MarkdownElement>);
 
 impl MarkdownElementCollection {
@@ -150,7 +150,7 @@ pub enum MarkdownElement {
 ///
 /// `plain text` (plain text)
 #[derive(Debug, Eq, PartialEq, Hash, Display)]
-#[display(fmt = "{}", "self.to_markdown_string()")]
+#[display(fmt = "{}", "self.to_markdown_string(&ToMarkdownStringOption::new())")]
 pub struct Plain {
     content: String,
 }
@@ -175,7 +175,7 @@ impl Plain {
 ///
 /// `*italics text*` (*italics text*)
 #[derive(Debug, Eq, PartialEq, Hash, Display)]
-#[display(fmt = "{}", "self.to_markdown_string()")]
+#[display(fmt = "{}", "self.to_markdown_string(&ToMarkdownStringOption::new())")]
 pub struct ItalicsStar {
     content: MarkdownElementCollection,
 }
@@ -200,7 +200,7 @@ impl ItalicsStar {
 ///
 /// `_italics text_` (_italics text_)
 #[derive(Debug, Eq, PartialEq, Hash, Display)]
-#[display(fmt = "{}", "self.to_markdown_string()")]
+#[display(fmt = "{}", "self.to_markdown_string(&ToMarkdownStringOption::new())")]
 pub struct ItalicsUnderscore {
     content: MarkdownElementCollection,
 }
@@ -225,7 +225,7 @@ impl ItalicsUnderscore {
 ///
 /// `**bold text**` (**bold text**)
 #[derive(Debug, Eq, PartialEq, Hash, Display)]
-#[display(fmt = "{}", "self.to_markdown_string()")]
+#[display(fmt = "{}", "self.to_markdown_string(&ToMarkdownStringOption::new())")]
 pub struct Bold {
     content: MarkdownElementCollection,
 }
@@ -250,7 +250,7 @@ impl Bold {
 ///
 /// `__underline text__`
 #[derive(Debug, Eq, PartialEq, Hash, Display)]
-#[display(fmt = "{}", "self.to_markdown_string()")]
+#[display(fmt = "{}", "self.to_markdown_string(&ToMarkdownStringOption::new())")]
 pub struct Underline {
     content: MarkdownElementCollection,
 }
@@ -275,7 +275,7 @@ impl Underline {
 ///
 /// `~~strikethrough text~~` (~~strikethrough text~~)
 #[derive(Debug, Eq, PartialEq, Hash, Display)]
-#[display(fmt = "{}", "self.to_markdown_string()")]
+#[display(fmt = "{}", "self.to_markdown_string(&ToMarkdownStringOption::new())")]
 pub struct Strikethrough {
     content: MarkdownElementCollection,
 }
@@ -300,7 +300,7 @@ impl Strikethrough {
 ///
 /// `||spoiler text||`
 #[derive(Debug, Eq, PartialEq, Hash, Display)]
-#[display(fmt = "{}", "self.to_markdown_string()")]
+#[display(fmt = "{}", "self.to_markdown_string(&ToMarkdownStringOption::new())")]
 pub struct Spoiler {
     content: MarkdownElementCollection,
 }
@@ -325,7 +325,7 @@ impl Spoiler {
 ///
 /// `` `let foo = "bar";` `` (`let foo = "bar";`)
 #[derive(Debug, Eq, PartialEq, Hash, Display)]
-#[display(fmt = "{}", "self.to_markdown_string()")]
+#[display(fmt = "{}", "self.to_markdown_string(&ToMarkdownStringOption::new())")]
 pub struct OneLineCode {
     content: String,
 }
@@ -356,7 +356,7 @@ impl OneLineCode {
 /// ```
 /// ````
 #[derive(Debug, Eq, PartialEq, Hash, Display)]
-#[display(fmt = "{}", "self.to_markdown_string()")]
+#[display(fmt = "{}", "self.to_markdown_string(&ToMarkdownStringOption::new())")]
 pub struct MultiLineCode {
     content: String,
     language: Option<String>,
@@ -394,7 +394,7 @@ impl MultiLineCode {
 /// > block quote
 /// ```
 #[derive(Debug, Eq, PartialEq, Hash, Display)]
-#[display(fmt = "{}", "self.to_markdown_string()")]
+#[display(fmt = "{}", "self.to_markdown_string(&ToMarkdownStringOption::new())")]
 pub struct BlockQuote {
     content: MarkdownElementCollection,
 }

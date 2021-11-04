@@ -197,7 +197,7 @@ impl ToMarkdownString for Spoiler {
         let content = self.content().to_markdown_string(option);
 
         if option.remove_spoiler {
-            "".to_string()
+            " ".to_string()
         } else if option.remove_format {
             content
         } else {
@@ -296,10 +296,10 @@ mod tests {
             ast.to_markdown_string(&option_remove_format()),
             "spoiler plain"
         );
-        assert_eq!(ast.to_markdown_string(&option_remove_spoiler()), " plain");
+        assert_eq!(ast.to_markdown_string(&option_remove_spoiler()), "  plain");
         assert_eq!(
             ast.to_markdown_string(&option_remove_format_and_spoiler()),
-            " plain"
+            "  plain"
         );
     }
 
@@ -329,11 +329,11 @@ mod tests {
         );
         assert_eq!(
             ast.to_markdown_string(&option_remove_spoiler()),
-            " plain __**underline bold**__"
+            "  plain __**underline bold**__"
         );
         assert_eq!(
             ast.to_markdown_string(&option_remove_format_and_spoiler()),
-            " plain underline bold"
+            "  plain underline bold"
         );
     }
 
@@ -420,11 +420,11 @@ mod tests {
         );
         assert_eq!(
             Spoiler::new(example_text()).to_markdown_string(&option_remove_spoiler()),
-            ""
+            " "
         );
         assert_eq!(
             Spoiler::new(example_text()).to_markdown_string(&option_remove_format_and_spoiler()),
-            ""
+            " "
         );
     }
 

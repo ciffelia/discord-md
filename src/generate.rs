@@ -43,7 +43,7 @@ use crate::ast::{
 ///
 /// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new()), "||spoiler|| text");
 /// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().omit_format(true)), "spoiler text");
-/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().omit_spoiler(true)), "  text");
+/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().omit_spoiler(true)), " text");
 /// ```
 pub struct ToMarkdownStringOption {
     /// Omit markdown styling from the output
@@ -197,7 +197,7 @@ impl ToMarkdownString for Spoiler {
         let content = self.content().to_markdown_string(option);
 
         if option.omit_spoiler {
-            " ".to_string()
+            "".to_string()
         } else if option.omit_format {
             content
         } else {
@@ -296,10 +296,10 @@ mod tests {
             ast.to_markdown_string(&option_omit_format()),
             "spoiler plain"
         );
-        assert_eq!(ast.to_markdown_string(&option_omit_spoiler()), "  plain");
+        assert_eq!(ast.to_markdown_string(&option_omit_spoiler()), " plain");
         assert_eq!(
             ast.to_markdown_string(&option_omit_format_and_spoiler()),
-            "  plain"
+            " plain"
         );
     }
 
@@ -329,11 +329,11 @@ mod tests {
         );
         assert_eq!(
             ast.to_markdown_string(&option_omit_spoiler()),
-            "  plain __**underline bold**__"
+            " plain __**underline bold**__"
         );
         assert_eq!(
             ast.to_markdown_string(&option_omit_format_and_spoiler()),
-            "  plain underline bold"
+            " plain underline bold"
         );
     }
 
@@ -417,11 +417,11 @@ mod tests {
         );
         assert_eq!(
             Spoiler::new(example_text()).to_markdown_string(&option_omit_spoiler()),
-            " "
+            ""
         );
         assert_eq!(
             Spoiler::new(example_text()).to_markdown_string(&option_omit_format_and_spoiler()),
-            " "
+            ""
         );
     }
 

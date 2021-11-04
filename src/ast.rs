@@ -1,6 +1,6 @@
 //! Markdown AST structure
 //!
-//! [`ast`](crate::ast) module provides AST components.
+//! [`ast`](crate::ast) module provides syntax tree components.
 //!
 //! Note: [`builder`](crate::builder) module provides helper functions to build AST in less lines of code.
 //!

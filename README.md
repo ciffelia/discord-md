@@ -103,7 +103,7 @@ Add the following to your `Cargo.toml` file:
 
 ```toml
 [dependencies]
-discord-md = "1.0.0"
+discord-md = "2.0.0-rc.1"
 ```
 
 ## Documentation

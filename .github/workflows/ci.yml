@@ -9,7 +9,7 @@ jobs:
   check:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
@@ -24,7 +24,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
@@ -39,7 +39,7 @@ jobs:
   docs:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
@@ -54,7 +54,7 @@ jobs:
   format:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
@@ -70,7 +70,7 @@ jobs:
   lint:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
@@ -88,7 +88,7 @@ jobs:
     needs: [check, test, docs, format, lint]
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1

@@ -1,2 +1,8 @@
+# Build output
 /target
+
+# Ignore lockfile since this is a library crate
+Cargo.lock
+
+# CLion
 /.idea

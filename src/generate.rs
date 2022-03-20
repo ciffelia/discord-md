@@ -45,6 +45,7 @@ use crate::ast::{
 /// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().omit_format(true)), "spoiler text");
 /// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().omit_spoiler(true)), " text");
 /// ```
+#[derive(Default)]
 pub struct ToMarkdownStringOption {
     /// Omit markdown styling from the output
     pub omit_format: bool,
@@ -66,15 +67,6 @@ impl ToMarkdownStringOption {
     pub fn omit_spoiler(mut self, value: bool) -> Self {
         self.omit_spoiler = value;
         self
-    }
-}
-
-impl Default for ToMarkdownStringOption {
-    fn default() -> Self {
-        Self {
-            omit_format: false,
-            omit_spoiler: false,
-        }
     }
 }
 
@@ -227,11 +219,7 @@ impl ToMarkdownString for MultiLineCode {
         if option.omit_format {
             content
         } else {
-            format!(
-                "```{}{}```",
-                self.language().as_deref().unwrap_or(""),
-                content
-            )
+            format!("```{}{}```", self.language().unwrap_or(""), content)
         }
     }
 }

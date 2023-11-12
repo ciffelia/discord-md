@@ -129,7 +129,7 @@ fn spoiler(i: &str) -> IResult<&str, Spoiler> {
     )(i)
 }
 
-/// Parses an inline code block.
+/// Parses an inline code.
 fn one_line_code(i: &str) -> IResult<&str, OneLineCode> {
     map(
         delimited(tag("`"), take_before1(tag("`")), tag("`")),

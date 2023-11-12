@@ -134,7 +134,7 @@ pub enum MarkdownElement {
     /// Spoiler text, wrapped in `||`.
     Spoiler(Box<Spoiler>),
 
-    /// Inline code block, wrapped in `` ` ``.
+    /// Inline code, wrapped in `` ` ``.
     OneLineCode(Box<OneLineCode>),
 
     /// Multiline code block, wrapped in ```` ``` ````.
@@ -319,7 +319,7 @@ impl Spoiler {
     }
 }
 
-/// Inline code block, wrapped in `` ` ``.
+/// Inline code, wrapped in `` ` ``.
 ///
 /// # Example markdown text
 ///
@@ -331,7 +331,7 @@ pub struct OneLineCode {
 }
 
 impl OneLineCode {
-    /// Creates an inline code block.
+    /// Creates an inline code.
     pub fn new(content: impl Into<String>) -> Self {
         Self {
             content: content.into(),

@@ -172,7 +172,7 @@ pub fn spoiler(content: impl Into<MarkdownElementCollection>) -> MarkdownElement
     MarkdownElement::Spoiler(Box::new(Spoiler::new(content)))
 }
 
-/// Build a inline code block element.
+/// Build a inline code element.
 ///
 /// # Example
 ///

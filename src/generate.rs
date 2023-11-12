@@ -200,7 +200,7 @@ impl ToMarkdownString for Spoiler {
 }
 
 impl ToMarkdownString for OneLineCode {
-    /// Returns the content of the inline code block as markdown styled text.
+    /// Returns the content of the inline code as markdown styled text.
     fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
         let content = self.content().to_string();
 

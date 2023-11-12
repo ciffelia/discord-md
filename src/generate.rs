@@ -46,6 +46,7 @@ use crate::ast::{
 /// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().omit_spoiler(true)), " text");
 /// ```
 #[derive(Default)]
+#[non_exhaustive]
 pub struct ToMarkdownStringOption {
     /// Omit markdown styling from the output
     pub omit_format: bool,

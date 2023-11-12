@@ -137,8 +137,8 @@ Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
 dual licensed as above, without any additional terms or conditions.
 
-[ci badge]: https://github.com/ciffelia/discord-md/workflows/CI/badge.svg?branch=main
-[ci link]: https://github.com/ciffelia/discord-md/actions?query=workflow%3ACI+branch%3Amain
+[ci badge]: https://github.com/ciffelia/discord-md/actions/workflows/ci.yml/badge.svg
+[ci link]: https://github.com/ciffelia/discord-md/actions/workflows/ci.yml
 
 [crates.io badge]: https://img.shields.io/crates/v/discord-md
 [crates.io link]: https://crates.io/crates/discord-md

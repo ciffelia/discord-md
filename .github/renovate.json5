@@ -1,4 +1,11 @@
 {
-  extends: ['config:base'],
-  prHourlyLimit: 0,
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'config:base',
+    ':semanticCommits',
+    ':semanticCommitTypeAll(chore)',
+    ':prHourlyLimitNone',
+  ],
+  timezone: 'Asia/Tokyo',
+  schedule: ['before 9am on Saturday'],
 }

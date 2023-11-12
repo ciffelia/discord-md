@@ -6,7 +6,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! discord-md = "2.0.0"
+//! discord-md = "2.0.1"
 //! ```
 //!
 //! # Parsing

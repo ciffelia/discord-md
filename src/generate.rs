@@ -38,12 +38,14 @@ use crate::ast::{
 ///
 /// let ast = MarkdownDocument::new(vec![
 ///     MarkdownElement::Spoiler(Box::new(Spoiler::new("spoiler"))),
-///     MarkdownElement::Plain(Box::new(Plain::new(" text")))
+///     MarkdownElement::Plain(Box::new(Plain::new(" text "))),
+///     MarkdownElement::OneLineCode(Box::new(OneLineCode::new("code"))),
 /// ]);
 ///
-/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new()), "||spoiler|| text");
-/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().omit_format(true)), "spoiler text");
-/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().omit_spoiler(true)), " text");
+/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new()), "||spoiler|| text `code`");
+/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().omit_format(true)), "spoiler text code");
+/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().omit_spoiler(true)), " text `code`");
+/// assert_eq!(ast.to_markdown_string(&ToMarkdownStringOption::new().omit_format(true).omit_one_line_code(true)), "spoiler text ");
 /// ```
 #[derive(Default)]
 #[non_exhaustive]
@@ -53,6 +55,12 @@ pub struct ToMarkdownStringOption {
 
     /// Omit spoilers from the output
     pub omit_spoiler: bool,
+
+    /// Omit inline codes from the output
+    pub omit_one_line_code: bool,
+
+    /// Omit multiline code blocks from the output
+    pub omit_multi_line_code: bool,
 }
 
 impl ToMarkdownStringOption {
@@ -67,6 +75,16 @@ impl ToMarkdownStringOption {
 
     pub fn omit_spoiler(mut self, value: bool) -> Self {
         self.omit_spoiler = value;
+        self
+    }
+
+    pub fn omit_one_line_code(mut self, value: bool) -> Self {
+        self.omit_one_line_code = value;
+        self
+    }
+
+    pub fn omit_multi_line_code(mut self, value: bool) -> Self {
+        self.omit_multi_line_code = value;
         self
     }
 }
@@ -204,7 +222,9 @@ impl ToMarkdownString for OneLineCode {
     fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
         let content = self.content().to_string();
 
-        if option.omit_format {
+        if option.omit_one_line_code {
+            "".to_string()
+        } else if option.omit_format {
             content
         } else {
             format!("`{}`", content)
@@ -217,7 +237,9 @@ impl ToMarkdownString for MultiLineCode {
     fn to_markdown_string(&self, option: &ToMarkdownStringOption) -> String {
         let content = self.content().to_string();
 
-        if option.omit_format {
+        if option.omit_multi_line_code {
+            "".to_string()
+        } else if option.omit_format {
             content
         } else {
             format!("```{}{}```", self.language().unwrap_or(""), content)
@@ -258,46 +280,42 @@ mod tests {
         ToMarkdownStringOption::new().omit_format(true)
     }
 
-    fn option_omit_spoiler() -> ToMarkdownStringOption {
-        ToMarkdownStringOption::new().omit_spoiler(true)
-    }
-
-    fn option_omit_format_and_spoiler() -> ToMarkdownStringOption {
-        ToMarkdownStringOption::new()
-            .omit_format(true)
-            .omit_spoiler(true)
-    }
-
     #[test]
     fn test_document_to_string() {
         let ast = MarkdownDocument::new(MarkdownElementCollection::new(vec![
             MarkdownElement::Spoiler(Box::new(Spoiler::new(MarkdownElementCollection::new(
                 vec![MarkdownElement::Plain(Box::new(Plain::new("spoiler")))],
             )))),
-            MarkdownElement::Plain(Box::new(Plain::new(" plain"))),
+            MarkdownElement::Plain(Box::new(Plain::new(" plain "))),
+            MarkdownElement::OneLineCode(Box::new(OneLineCode::new("code"))),
         ]));
 
         assert_eq!(
             ast.to_markdown_string(&option_default()),
-            "||spoiler|| plain"
+            "||spoiler|| plain `code`"
         );
         assert_eq!(
             ast.to_markdown_string(&option_omit_format()),
-            "spoiler plain"
+            "spoiler plain code"
         );
-        assert_eq!(ast.to_markdown_string(&option_omit_spoiler()), " plain");
         assert_eq!(
-            ast.to_markdown_string(&option_omit_format_and_spoiler()),
-            " plain"
+            ast.to_markdown_string(&option_default().omit_spoiler(true)),
+            " plain `code`"
+        );
+        assert_eq!(
+            ast.to_markdown_string(&option_omit_format().omit_one_line_code(true)),
+            "spoiler plain "
+        );
+        assert_eq!(
+            ast.to_markdown_string(&option_default().omit_spoiler(true).omit_one_line_code(true)),
+            " plain "
         );
     }
 
     #[test]
     fn test_element_collection_to_string() {
         let ast = MarkdownElementCollection::new(vec![
-            MarkdownElement::Spoiler(Box::new(Spoiler::new(MarkdownElementCollection::new(
-                vec![MarkdownElement::Plain(Box::new(Plain::new("spoiler")))],
-            )))),
+            MarkdownElement::OneLineCode(Box::new(OneLineCode::new("code"))),
             MarkdownElement::Plain(Box::new(Plain::new(" plain "))),
             MarkdownElement::Underline(Box::new(Underline::new(MarkdownElementCollection::new(
                 vec![MarkdownElement::Bold(Box::new(Bold::new(
@@ -310,18 +328,18 @@ mod tests {
 
         assert_eq!(
             ast.to_markdown_string(&option_default()),
-            "||spoiler|| plain __**underline bold**__"
+            "`code` plain __**underline bold**__"
         );
         assert_eq!(
             ast.to_markdown_string(&option_omit_format()),
-            "spoiler plain underline bold"
+            "code plain underline bold"
         );
         assert_eq!(
-            ast.to_markdown_string(&option_omit_spoiler()),
+            ast.to_markdown_string(&option_default().omit_one_line_code(true)),
             " plain __**underline bold**__"
         );
         assert_eq!(
-            ast.to_markdown_string(&option_omit_format_and_spoiler()),
+            ast.to_markdown_string(&option_omit_format().omit_one_line_code(true)),
             " plain underline bold"
         );
     }
@@ -405,11 +423,12 @@ mod tests {
             "text"
         );
         assert_eq!(
-            Spoiler::new(example_text()).to_markdown_string(&option_omit_spoiler()),
+            Spoiler::new(example_text()).to_markdown_string(&option_default().omit_spoiler(true)),
             ""
         );
         assert_eq!(
-            Spoiler::new(example_text()).to_markdown_string(&option_omit_format_and_spoiler()),
+            Spoiler::new(example_text())
+                .to_markdown_string(&option_omit_format().omit_spoiler(true)),
             ""
         );
     }
@@ -423,6 +442,16 @@ mod tests {
         assert_eq!(
             OneLineCode::new("one line code").to_markdown_string(&option_omit_format()),
             "one line code"
+        );
+        assert_eq!(
+            OneLineCode::new("one line code")
+                .to_markdown_string(&option_default().omit_one_line_code(true)),
+            ""
+        );
+        assert_eq!(
+            OneLineCode::new("one line code")
+                .to_markdown_string(&option_omit_format().omit_one_line_code(true)),
+            ""
         );
     }
 
@@ -466,6 +495,17 @@ mod tests {
             MultiLineCode::new("\nmulti\nline\ncode\n", Some("js".to_string()))
                 .to_markdown_string(&option_omit_format()),
             "\nmulti\nline\ncode\n"
+        );
+
+        assert_eq!(
+            MultiLineCode::new("\nmulti\nline\ncode\n", None)
+                .to_markdown_string(&option_default().omit_multi_line_code(true)),
+            ""
+        );
+        assert_eq!(
+            MultiLineCode::new("\nmulti\nline\ncode\n", None)
+                .to_markdown_string(&option_omit_format().omit_multi_line_code(true)),
+            ""
         );
     }
 

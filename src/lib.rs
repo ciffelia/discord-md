@@ -6,7 +6,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! discord-md = "3.0.0-rc.1"
+//! discord-md = "3.0.0"
 //! ```
 //!
 //! # Parsing

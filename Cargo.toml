@@ -10,5 +10,5 @@ categories = ["parser-implementations"]
 exclude = ["/.github", "/.gitignore"]
 
 [dependencies]
-nom = "7"
-derive_more = "0.99"
+nom = "7.1.3"
+derive_more = "0.99.17"

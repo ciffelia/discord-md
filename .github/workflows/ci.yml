@@ -6,21 +6,6 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  check:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-
-      - name: Check
-        run: cargo check
-
   test:
     runs-on: ubuntu-20.04
     steps:
@@ -85,7 +70,7 @@ jobs:
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [check, test, docs, format, lint]
+    needs: [test, docs, format, lint]
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3

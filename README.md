@@ -74,9 +74,7 @@ fn main() {
 
 ## Features
 
-- Tested
-- Well documented
-- Minimal dependencies (only [nom](https://github.com/Geal/nom) and [derive_more](https://github.com/JelteF/derive_more))
+- Minimal dependencies (only [nom](https://github.com/rust-bakery/nom) and [derive_more](https://github.com/JelteF/derive_more))
 - Supports the following syntax:
   - Italics (`*italics*`, `_italics_`)
   - Bold (`**bold**`)

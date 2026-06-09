@@ -7,10 +7,4 @@
     ":prConcurrentLimitNone",
     ":dependencyDashboardApproval",
   ],
-  packageRules: [
-    {
-      matchPackageNames: ["*"],
-      enabled: false,
-    },
-  ],
 }
